@@ -2,6 +2,52 @@
 
 Last reviewed: 2026-10-27
 
+## Phase 3 backend foundation
+
+Phase 3 backend foundation is implemented in a separate `backend/` package.
+This milestone does not implement authentication, financial models, transaction
+APIs, reports, budgets, recurring jobs, alerts, exports, or frontend API
+integration.
+
+### Implemented
+
+- Importable Express application in `backend/src/app.js`.
+- Separate startup process in `backend/src/server.js`.
+- Zod-validated environment configuration.
+- Dedicated Mongoose connection and clean shutdown module.
+- Restricted credentialed CORS configuration.
+- JSON body size limit of 100 KB.
+- Request IDs and safe request logging.
+- Stable centralized error and not-found responses.
+- `GET /api/health` liveness endpoint.
+- `GET /api/ready` readiness endpoint that returns `503` unless Mongoose is
+  connected.
+- Vitest and Supertest foundation tests that do not require a live database.
+- Root `dev:backend` and `test:backend` scripts.
+
+### Runtime setup
+
+Copy `backend/.env.example` to `backend/.env` and provide a real
+`MONGODB_URI`, sufficiently long `JWT_SECRET`, and `CRON_SECRET`. The backend
+server intentionally fails before listening when configuration is invalid or
+MongoDB cannot be reached. No live MongoDB credentials were available during
+this milestone, so database connectivity has not been verified.
+
+### Phase 3 verification
+
+- `npm run test:backend`: passed — 6 foundation tests.
+- `npm run build`: passed — existing Vite chunk warnings remain non-blocking.
+- `git diff --check`: passed.
+
+No live MongoDB credentials were available, so `connectToDatabase` and the
+readiness-success path have not been verified against MongoDB Atlas. The
+backend intentionally refuses to start listening when configuration or the
+required database connection is invalid.
+
+The next milestone is authentication and user/session infrastructure. It must
+resolve the stateless JWT-cookie versus server-side-session decision before
+implementing registration or login.
+
 ## Phase 2 architecture and contract milestone
 
 Phase 2 documentation is complete. This milestone reviewed the current
