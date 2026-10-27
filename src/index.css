@@ -56,7 +56,7 @@
   }
   
   .input-base {
-    @apply w-full h-10 px-3 bg-surface-container-lowest text-on-surface font-body-md text-body-md border border-outline-variant rounded-lg placeholder:text-on-surface-variant/60 transition-all duration-fast focus:border-primary focus:ring-2 focus:ring-primary/20 focus:bg-surface-container-lowest disabled:bg-surface-container-high disabled:cursor-not-allowed;
+    @apply w-full h-10 px-3 bg-surface-container-lowest text-on-surface text-body-md border border-outline-variant rounded-lg placeholder:text-on-surface-variant/60 transition-all duration-fast focus:border-primary focus:ring-2 focus:ring-primary/20 focus:bg-surface-container-lowest disabled:bg-surface-container-high disabled:cursor-not-allowed;
   }
   
   .input-currency {
@@ -64,7 +64,7 @@
   }
   
   .input-currency .currency-symbol {
-    @apply absolute left-3 text-on-surface-variant font-body-md text-body-md pointer-events-none;
+    @apply absolute left-3 text-on-surface-variant text-body-md pointer-events-none;
   }
   
   .input-currency input {
@@ -72,7 +72,7 @@
   }
   
   .select-base {
-    @apply w-full h-10 px-3 pr-10 bg-surface-container-low text-on-surface font-body-md text-body-md border border-outline-variant rounded-lg appearance-none cursor-pointer transition-all duration-fast focus:border-primary focus:ring-2 focus:ring-primary/20 focus:bg-surface-container-lowest;
+    @apply w-full h-10 px-3 pr-10 bg-surface-container-low text-on-surface text-body-md border border-outline-variant rounded-lg appearance-none cursor-pointer transition-all duration-fast focus:border-primary focus:ring-2 focus:ring-primary/20 focus:bg-surface-container-lowest;
   }
   
   .card {
@@ -84,7 +84,7 @@
   }
   
   .badge {
-    @apply inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-label-sm text-label-sm;
+    @apply inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-label-sm;
   }
   
   .badge-income {
@@ -132,7 +132,7 @@
   }
   
   .table-base td {
-    @apply px-4 py-3.5 font-body-md text-body-md text-on-surface;
+    @apply px-4 py-3.5 text-body-md text-on-surface;
   }
   
   .table-base td.numeric {

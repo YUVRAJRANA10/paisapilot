@@ -4,7 +4,8 @@ const DemoContext = createContext(null)
 
 export function DemoProvider({ children }) {
   const [demoMode, setDemoMode] = useState(
-    import.meta.env.VITE_DEMO_MODE === 'true' || true
+    localStorage.getItem('paisapilot_demo_mode') !== 'false' &&
+    import.meta.env.VITE_DEMO_MODE !== 'false'
   )
 
   const toggleDemoMode = useCallback(() => {
@@ -16,8 +17,9 @@ export function DemoProvider({ children }) {
   }, [])
 
   const resetDemoData = useCallback(() => {
-    // In a real implementation, this would reload demo data from scratch
-    window.location.reload()
+    if (window.confirm('Reset the demo workspace to its original data?')) {
+      window.location.reload()
+    }
   }, [])
 
   const value = {

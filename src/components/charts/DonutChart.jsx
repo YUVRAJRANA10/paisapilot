@@ -41,7 +41,7 @@ export function DonutChart({ data, width = 300, height = 300, title = '' }) {
               fill="#8884d8"
               dataKey="total"
               labelLine={false}
-              label={({ name, value, percent }) => {
+              label={({ value }) => {
                 const pct = ((value / total) * 100).toFixed(0)
                 return pct > 5 ? `${pct}%` : null
               }}
@@ -49,21 +49,23 @@ export function DonutChart({ data, width = 300, height = 300, title = '' }) {
               {data.map((entry, index) => (
                 <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
               ))}
-              <Tooltip
-                content={({ active, name, value, percent }) => {
-                  if (!active) return null
-                  const pct = ((value / total) * 100).toFixed(1)
-                  return (
-                    <div className="p-2 bg-surface-container-lowest border border-outline/30 rounded-lg shadow-elevated">
-                      <div className="text-label-sm text-on-surface-variant">{name}</div>
-                      <div className="text-label-md text-on-surface font-semibold">
-                        ₹{(value / 100).toFixed(0)} ({pct}%)
-                      </div>
-                    </div>
-                  )
-                }}
-              />
             </Pie>
+            <Tooltip
+              content={({ active, payload }) => {
+                if (!active || !payload?.length) return null
+                const item = payload[0]
+                const value = item.value || 0
+                const pct = ((value / total) * 100).toFixed(1)
+                return (
+                  <div className="p-2 bg-surface-container-lowest border border-outline/30 rounded-lg shadow-elevated">
+                    <div className="text-label-sm text-on-surface-variant">{item.name}</div>
+                    <div className="text-label-md text-on-surface font-semibold">
+                      ₹{(value / 100).toFixed(0)} ({pct}%)
+                    </div>
+                  </div>
+                )
+              }}
+            />
           </PieChart>
         </ResponsiveContainer>
       </div>
