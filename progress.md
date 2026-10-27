@@ -2,6 +2,59 @@
 
 Last reviewed: 2026-10-27
 
+## Phase 2 architecture and contract milestone
+
+Phase 2 documentation is complete. This milestone reviewed the current
+frontend, demo adapter, API scaffold, validation schemas, product plan, and
+original assignment requirements. No backend implementation or dependency
+installation was performed.
+
+### Created
+
+- `docs/ARCHITECTURE.md`: frontend/backend boundary, adapter selection,
+  service/repository layers, reporting, jobs, exports, environments, and
+  security boundaries.
+- `docs/DATA_MODEL.md`: user, transaction, category, monthly budget,
+  preferences, recurrence, and notification models.
+- `docs/API_CONTRACT.md`: authentication, transaction, report, budget,
+  category, preference, recurring, health, and cron endpoint contracts.
+- `docs/DECISIONS.md`: confirmed architecture decisions and unresolved
+  deployment/product choices.
+- `docs/TEST_PLAN.md`: Vitest, Supertest, integration, edge-case, and
+  deployment validation plan.
+- `.env.example`: safe placeholders for future frontend/backend configuration.
+
+### Confirmed architectural decisions
+
+- Money remains integer paise at the API and database boundary.
+- MongoDB stores UTC instants; the user's IANA timezone defines month
+  boundaries.
+- Reports are server-side MongoDB aggregations and are the source of truth for
+  persisted financial totals.
+- Budgets are monthly `(userId, categoryId, month)` records whose usage is
+  derived from transactions.
+- Production authentication uses secure HttpOnly cookies, restricted CORS,
+  and CSRF protection for state-changing requests.
+- Demo and real API adapters remain separate; API failures must not silently
+  return demo data.
+- CSV is the initial export format; PDF remains open.
+
+### Current implementation boundary
+
+The frontend still uses `demoAdapter` in `AuthContext` and pages. The existing
+Axios scaffold is not yet a production API adapter: it uses local-storage
+token assumptions and is not declared as a current package dependency. This
+was intentionally documented rather than changed during the architecture-only
+milestone. No backend endpoint is claimed to work.
+
+### Next milestone
+
+Implement the backend foundation in a separate `backend/` application:
+Express setup, environment validation, MongoDB connection, common errors,
+secure authentication middleware, and a tested `/api/health` endpoint. Before
+that work, resolve the open decisions in `docs/DECISIONS.md`, especially the
+session strategy, deployment cron host, email provider, and export scope.
+
 ## Phase 1 stabilization update
 
 Phase 1 frontend stabilization has now been completed at the implementation level. The work focused on verifying the existing UI and demo adapter rather than starting backend development.
