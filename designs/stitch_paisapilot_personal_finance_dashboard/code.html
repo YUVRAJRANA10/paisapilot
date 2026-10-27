@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={"darkMode":"class","theme":{"extend":{"colors":{"primary-fixed-dim":"#68dba9","secondary":"#565e74","on-tertiary-fixed":"#001a42","on-surface":"#0b1c30","tertiary-fixed-dim":"#adc6ff","tertiary-container":"#2170e4","on-secondary-fixed-variant":"#3f465c","primary-fixed":"#85f8c4","on-primary-container":"#f5fff7","on-tertiary-fixed-variant":"#004395","surface-dim":"#cbdbf5","outline-variant":"#bccac0","on-error-container":"#93000a","surface-tint":"#006c4a","inverse-surface":"#213145","surface":"#f8f9ff","background":"#f8f9ff","surface-container-low":"#eff4ff","surface-container-high":"#dce9ff","on-surface-variant":"#3d4a42","primary-container":"#00855d","tertiary":"#0058be","on-secondary-fixed":"#131b2e","surface-container-highest":"#d3e4fe","on-primary-fixed-variant":"#005137","secondary-container":"#dae2fd","on-primary-fixed":"#002114","surface-variant":"#d3e4fe","on-background":"#0b1c30","primary":"#006948","on-primary":"#ffffff","outline":"#6d7a72","secondary-fixed-dim":"#bec6e0","inverse-primary":"#68dba9","error":"#ba1a1a","error-container":"#ffdad6","on-secondary-container":"#5c647a","surface-container":"#e5eeff","surface-bright":"#f8f9ff","on-tertiary":"#ffffff","inverse-on-surface":"#eaf1ff","on-secondary":"#ffffff","surface-container-lowest":"#ffffff","tertiary-fixed":"#d8e2ff","secondary-fixed":"#dae2fd","on-error":"#ffffff","on-tertiary-container":"#fefcff"},"borderRadius":{"DEFAULT":"0.25rem","lg":"0.5rem","xl":"0.75rem","full":"9999px"},"spacing":{"space-xs":"0.25rem","gutter":"1.5rem","space-xl":"2.5rem","space-lg":"1.5rem","gutter-mobile":"1rem","margin":"2rem","space-md":"1rem","margin-mobile":"1rem","space-sm":"0.5rem"},"fontFamily":{"body-lg":["Plus Jakarta Sans"],"headline-lg":["Plus Jakarta Sans"],"label-lg":["Plus Jakarta Sans"],"headline-lg-mobile":["Plus Jakarta Sans"],"label-sm":["Plus Jakarta Sans"],"headline-xl":["Plus Jakarta Sans"],"body-sm":["Plus Jakarta Sans"],"body-md":["Plus Jakarta Sans"],"label-md":["Plus Jakarta Sans"],"headline-xl-mobile":["Plus Jakarta Sans"],"headline-md":["Plus Jakarta Sans"]},"fontSize":{"body-lg":["16px",{"lineHeight":"24px","fontWeight":"400"}],"headline-lg":["28px",{"lineHeight":"36px","fontWeight":"600"}],"label-lg":["14px",{"lineHeight":"20px","fontWeight":"600"}],"headline-lg-mobile":["22px",{"lineHeight":"30px","fontWeight":"600"}],"label-sm":["11px",{"lineHeight":"14px","fontWeight":"700"}],"headline-xl":["36px",{"lineHeight":"44px","fontWeight":"700"}],"body-sm":["12px",{"lineHeight":"18px","fontWeight":"400"}],"body-md":["14px",{"lineHeight":"20px","fontWeight":"400"}],"label-md":["12px",{"lineHeight":"16px","fontWeight":"600"}],"headline-xl-mobile":["28px",{"lineHeight":"36px","fontWeight":"700"}],"headline-md":["20px",{"lineHeight":"28px","fontWeight":"600"}]}}}};</script></head><body class="bg-surface font-body-md text-on-surface antialiased"><aside class="fixed left-0 top-0 h-full w-64 bg-inverse-surface text-surface z-50 flex flex-col justify-between shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="flex flex-col"><div class="px-space-lg pt-space-lg pb-space-md flex flex-col gap-space-xs"><div class="flex items-center gap-space-sm"><img alt="PaisaPilot Brand Icon" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1VjaEyKgDrdD5SYTzkOcW6SCORAZafs1THuhsO9f3A4TSFsuOfEcZPd0uoL7SGNXMQJu_GJkM4fIvqK-wxdVQ3mgWJFJN0UqrJ-T6CyIOnTQSc2s7iZYU9ypxy0ihCPgr9D5u5gfFeEZASPokssTJyXbss3n0RIQ4l5nX4__dKrZXAm79j4GjhjctwhIxeMWxES0p02SHuyjgq2BzFLCEXkIFF27VC6YHL-uziCzHO2"/><span class="font-headline-md text-headline-md tracking-tight text-surface-bright">PaisaPilot</span></div><span class="font-label-sm text-label-sm text-surface-dim uppercase tracking-wider">Apne paison ke pilot khud baniye</span></div><nav class="flex flex-col gap-space-xs px-space-md mt-space-md" data-active-classes="bg-primary text-on-primary font-label-lg rounded-lg"><a aria-current="page" class="flex items-center gap-space-sm px-space-md py-space-sm transition-colors bg-primary text-on-primary font-label-lg rounded-lg" data-path="dashboard" href="#"><span class="material-symbols-outlined text-[18px]">dashboard</span><span>Dashboard</span></a><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg font-label-lg text-label-lg text-surface-dim hover:bg-surface-container-highest hover:text-on-surface transition-colors" data-path="transactions" href="#"><span class="material-symbols-outlined text-[18px]">receipt_long</span><span>Transactions</span></a><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg font-label-lg text-label-lg text-surface-dim hover:bg-surface-container-highest hover:text-on-surface transition-colors" data-path="budgets" href="#"><span class="material-symbols-outlined text-[18px]">account_balance_wallet</span><span>Budgets</span></a><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg font-label-lg text-label-lg text-surface-dim hover:bg-surface-container-highest hover:text-on-surface transition-colors" data-path="analytics" href="#"><span class="material-symbols-outlined text-[18px]">monitoring</span><span>Analytics</span></a><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg font-label-lg text-label-lg text-surface-dim hover:bg-surface-container-highest hover:text-on-surface transition-colors" data-path="recurring-transactions" href="#"><span class="material-symbols-outlined text-[18px]">sync_alt</span><span>Recurring Transactions</span></a><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg font-label-lg text-label-lg text-surface-dim hover:bg-surface-container-highest hover:text-on-surface transition-colors" data-path="reports" href="#"><span class="material-symbols-outlined text-[18px]">description</span><span>Reports</span></a><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg font-label-lg text-label-lg text-surface-dim hover:bg-surface-container-highest hover:text-on-surface transition-colors" data-path="settings" href="#"><span class="material-symbols-outlined text-[18px]">settings</span><span>Settings</span></a></nav></div><div class="p-space-md m-space-md rounded-xl bg-surface-container-highest/20 backdrop-blur-sm"><div class="flex items-center gap-space-xs mb-space-xs"><span class="inline-block w-2 h-2 rounded-full bg-primary-fixed animate-pulse"></span><span class="font-label-sm text-label-sm text-primary-fixed tracking-wide uppercase">Live Connection</span></div><p class="font-body-sm text-body-sm text-surface-dim leading-snug">UPI &amp; Bank Sync: Real-time Active</p></div></aside><div class="pl-64"><header class="fixed top-0 left-64 right-0 h-16 bg-surface/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)] z-40 flex items-center justify-between px-space-lg"><div class="flex items-center gap-space-md"><img alt="PaisaPilot Brand Icon" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1VjaEyKgDrdD5SYTzkOcW6SCORAZafs1THuhsO9f3A4TSFsuOfEcZPd0uoL7SGNXMQJu_GJkM4fIvqK-wxdVQ3mgWJFJN0UqrJ-T6CyIOnTQSc2s7iZYU9ypxy0ihCPgr9D5u5gfFeEZASPokssTJyXbss3n0RIQ4l5nX4__dKrZXAm79j4GjhjctwhIxeMWxES0p02SHuyjgq2BzFLCEXkIFF27VC6YHL-uziCzHO2"/><div class="flex items-center gap-space-xs text-on-surface-variant font-label-md text-label-md"><span class="text-on-surface font-label-lg text-label-lg">PaisaPilot</span><span class="material-symbols-outlined text-[16px]">chevron_right</span><span>Financial Cockpit</span></div><div class="relative flex items-center ml-space-md"><span class="material-symbols-outlined absolute left-space-sm text-outline text-[18px]">search</span><input class="w-80 h-10 pl-9 pr-14 rounded-lg bg-surface-container-lowest text-on-surface font-body-sm text-body-sm placeholder:text-outline focus:outline-none focus:ring-2 focus:ring-primary shadow-[0_1px_3px_rgba(15,23,42,0.04)]" placeholder="Search transactions, budgets, insights..." type="text"/><div class="absolute right-space-sm px-space-xs py-0.5 rounded bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm">Ctrl+K</div></div></div><div class="flex items-center gap-space-md"><button class="relative p-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors"><span class="material-symbols-outlined text-[22px]">notifications</span><span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-error"></span></button><button class="flex items-center gap-space-xs bg-primary hover:bg-primary-container text-on-primary px-space-md py-space-sm rounded-lg font-label-lg text-label-lg transition-colors shadow-[0_1px_3px_rgba(15,23,42,0.04)]"><span class="material-symbols-outlined text-[18px]">add</span><span>Add Transaction</span></button><div class="flex items-center gap-space-sm pl-space-sm"><img alt="Profile" class="w-8 h-8 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA4hNFbKVle5zpZPqFL0lxexpRC6uD6lLXnGfxBZP5oX9uK3eeTodCIRSXJ8yG2guG_r0IWKlU9oeAbdaHoqqFP_7GnD06rLDFyeqPN0pH9CwU6MkVsoN7-CmwjmqfvBUTVuUeYhxmvn3qLnzQ9smeKHMG8WgXzzGW3wNXDHEGUAU-gJdq_9rf_uYutZoNa0a0e6C8D8vXgsPagTPCYUzanP3DcjrCmbE_wPe1AOIo"/><div class="flex flex-col text-left"><span class="font-label-md text-label-md text-on-surface leading-tight">Aditi Sharma</span><span class="font-label-sm text-label-sm text-secondary leading-tight">Personal Tier</span></div></div></div></header><main class="relative w-full pt-16 bg-surface min-h-screen px-space-lg"><div class="flex flex-col w-full">
+<!-- Top Command & Header Telemetry Bar -->
+<section class="flex flex-col lg:flex-row lg:items-center justify-between gap-space-md pb-space-lg">
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-center gap-space-sm flex-wrap">
+<h1 class="font-headline-lg text-headline-lg text-on-surface tracking-tight">Welcome back, Aditi</h1>
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container-low text-primary text-label-sm font-label-sm">
+<span class="inline-block w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+          Synced with 3 Bank Accounts &amp; UPI · 12 mins ago
+        </span>
+</div>
+<p class="font-body-md text-body-md text-secondary">
+        Your money, under control. Here's your financial flightpath for <span class="font-label-md text-on-surface">October 2024</span>.
+      </p>
+</div>
+<!-- Period Selector & Command Triggers -->
+<div class="flex items-center gap-space-sm flex-wrap">
+<div class="inline-flex p-1 rounded-xl bg-surface-container-high" role="group">
+<button class="px-3.5 py-1.5 rounded-lg text-label-md font-label-md bg-surface-container-lowest text-on-surface shadow-sm transition-colors">October 2024</button>
+<button class="px-3.5 py-1.5 rounded-lg text-label-md font-label-md text-secondary hover:text-on-surface transition-colors">Last 30 Days</button>
+<button class="px-3.5 py-1.5 rounded-lg text-label-md font-label-md text-secondary hover:text-on-surface transition-colors">Fiscal Q3</button>
+</div>
+<button class="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-surface-container-lowest text-on-surface hover:bg-surface-container font-label-md text-label-md shadow-sm transition-colors">
+<span class="material-symbols-outlined text-[18px] text-secondary">file_download</span>
+<span>Export Statement</span>
+</button>
+<button class="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-primary text-on-primary hover:bg-primary-container font-label-md text-label-md shadow-sm transition-colors">
+<span class="material-symbols-outlined text-[18px]">add_circle</span>
+<span>Quick Entry</span>
+</button>
+</div>
+</section>
+<!-- Metric Telemetry Cards Grid (Indian Numbering Format & Consistent Math) -->
+<section class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-space-md mb-space-lg">
+<!-- Card 1: Total Inflow -->
+<div class="relative overflow-hidden rounded-xl bg-surface-container-lowest p-space-lg shadow-sm flex flex-col justify-between">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-primary"></span>
+<span class="text-label-sm font-label-sm text-secondary uppercase tracking-wider">Total Inflow</span>
+</div>
+<div class="w-8 h-8 rounded-lg bg-surface-container-low flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[18px]">arrow_downward</span>
+</div>
+</div>
+<div class="mt-space-md">
+<span class="text-secondary font-label-md text-label-md">₹</span>
+<span class="font-headline-xl text-headline-xl text-on-surface tracking-tight font-bold ml-0.5">1,48,500</span>
+</div>
+<div class="mt-space-sm pt-space-sm bg-surface-container-low/40 rounded-lg px-2.5 py-1.5 flex items-center justify-between">
+<span class="inline-flex items-center text-primary font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[16px] mr-0.5">trending_up</span>
+          +8.4% vs Sep
+        </span>
+<span class="text-secondary font-body-sm text-body-sm font-medium">+₹11,500</span>
+</div>
+</div>
+<!-- Card 2: Total Outflow -->
+<div class="relative overflow-hidden rounded-xl bg-surface-container-lowest p-space-lg shadow-sm flex flex-col justify-between">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-error"></span>
+<span class="text-label-sm font-label-sm text-secondary uppercase tracking-wider">Total Expenses</span>
+</div>
+<div class="w-8 h-8 rounded-lg bg-error-container/60 flex items-center justify-center text-error">
+<span class="material-symbols-outlined text-[18px]">arrow_upward</span>
+</div>
+</div>
+<div class="mt-space-md">
+<span class="text-secondary font-label-md text-label-md">₹</span>
+<span class="font-headline-xl text-headline-xl text-on-surface tracking-tight font-bold ml-0.5">84,650</span>
+</div>
+<div class="mt-space-sm pt-space-sm bg-surface-container-low/40 rounded-lg px-2.5 py-1.5 flex items-center justify-between">
+<span class="inline-flex items-center text-primary font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[16px] mr-0.5">trending_down</span>
+          -4.2% vs Sep
+        </span>
+<span class="text-secondary font-body-sm text-body-sm font-medium">-₹3,700 saved</span>
+</div>
+</div>
+<!-- Card 3: Net Cash Surplus -->
+<div class="relative overflow-hidden rounded-xl bg-surface-container-lowest p-space-lg shadow-sm flex flex-col justify-between">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-primary-container"></span>
+<span class="text-label-sm font-label-sm text-secondary uppercase tracking-wider">Net Surplus</span>
+</div>
+<div class="w-8 h-8 rounded-lg bg-primary-fixed/40 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[18px]">account_balance</span>
+</div>
+</div>
+<div class="mt-space-md">
+<span class="text-secondary font-label-md text-label-md">₹</span>
+<span class="font-headline-xl text-headline-xl text-primary-container tracking-tight font-bold ml-0.5">63,850</span>
+</div>
+<div class="mt-space-sm pt-space-sm bg-surface-container-low/40 rounded-lg px-2.5 py-1.5 flex items-center justify-between">
+<span class="inline-flex items-center text-primary font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[16px] mr-0.5">verified</span>
+          +28.5% YoY
+        </span>
+<span class="text-secondary font-body-sm text-body-sm">Inflow - Outflow</span>
+</div>
+</div>
+<!-- Card 4: Savings Ratio -->
+<div class="relative overflow-hidden rounded-xl bg-surface-container-lowest p-space-lg shadow-sm flex flex-col justify-between">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-tertiary"></span>
+<span class="text-label-sm font-label-sm text-secondary uppercase tracking-wider">Savings Rate</span>
+</div>
+<span class="px-2 py-0.5 rounded-full bg-surface-container-high text-tertiary font-label-sm text-label-sm">Target: 40%</span>
+</div>
+<div class="mt-space-md flex items-baseline gap-2">
+<span class="font-headline-xl text-headline-xl text-on-surface tracking-tight font-bold">43.0%</span>
+<span class="text-label-sm font-label-sm text-primary font-medium">+4.8% delta</span>
+</div>
+<div class="mt-space-sm">
+<div class="w-full bg-surface-container-high h-2 rounded-full overflow-hidden flex">
+<div class="bg-primary h-full rounded-full transition-all duration-500" style="width: 43%;"></div>
+</div>
+<div class="flex justify-between items-center mt-1.5 font-label-sm text-label-sm text-secondary">
+<span>₹63,850 Retained</span>
+<span class="text-primary font-semibold">Goal Achieved</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Visual Analytics Row (Cash Flow 6-Month Trajectory & Expenditure Donut Breakdown) -->
+<section class="grid grid-cols-1 lg:grid-cols-12 gap-space-md mb-space-lg">
+<!-- Left: 6-Month Trajectory Flight Deck (7 Cols) -->
+<div class="lg:col-span-7 rounded-xl bg-surface-container-lowest p-space-lg shadow-sm flex flex-col justify-between">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm mb-space-md">
+<div>
+<div class="flex items-center gap-2">
+<span class="w-2.5 h-2.5 rounded bg-primary"></span>
+<h2 class="font-headline-md text-headline-md text-on-surface font-bold">Cash Flow Trajectory</h2>
+</div>
+<p class="font-body-sm text-body-sm text-secondary">Comparative review of gross income versus operational expenditures (May - Oct 2024)</p>
+</div>
+<div class="flex items-center gap-space-md">
+<div class="flex items-center gap-1.5">
+<span class="w-3 h-3 rounded-sm bg-primary"></span>
+<span class="font-label-sm text-label-sm text-secondary">Income</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="w-3 h-3 rounded-sm bg-error"></span>
+<span class="font-label-sm text-label-sm text-secondary">Expenses</span>
+</div>
+</div>
+</div>
+<!-- SVG Chart Canvas Area with Scaled Bars -->
+<div class="relative w-full h-64 mt-space-sm flex flex-col justify-end">
+<!-- Horizontal Reference Gridlines -->
+<div class="absolute inset-0 flex flex-col justify-between pointer-events-none text-secondary font-label-sm text-label-sm">
+<div class="flex items-center gap-2 w-full">
+<span class="w-12 text-right">₹1.5L</span>
+<div class="flex-1 h-[1px] bg-surface-container"></div>
+</div>
+<div class="flex items-center gap-2 w-full">
+<span class="w-12 text-right">₹1.0L</span>
+<div class="flex-1 h-[1px] bg-surface-container"></div>
+</div>
+<div class="flex items-center gap-2 w-full">
+<span class="w-12 text-right">₹50K</span>
+<div class="flex-1 h-[1px] bg-surface-container"></div>
+</div>
+<div class="flex items-center gap-2 w-full">
+<span class="w-12 text-right">₹0</span>
+<div class="flex-1 h-[1px] bg-surface-container"></div>
+</div>
+</div>
+<!-- Grouped Columns Container -->
+<div class="relative z-10 grid grid-cols-6 pl-14 pr-2 h-48 items-end gap-3 sm:gap-6">
+<!-- May -->
+<div class="flex flex-col items-center h-full justify-end group cursor-pointer">
+<div class="flex items-end gap-1 sm:gap-1.5 w-full justify-center">
+<div class="w-3.5 sm:w-5 bg-primary/80 group-hover:bg-primary rounded-t-sm transition-all" style="height: 140px;" title="May Income: ₹1,32,000"></div>
+<div class="w-3.5 sm:w-5 bg-error/70 group-hover:bg-error rounded-t-sm transition-all" style="height: 95px;" title="May Expenses: ₹89,000"></div>
+</div>
+<span class="mt-2 font-label-sm text-label-sm text-secondary group-hover:text-on-surface">MAY</span>
+</div>
+<!-- Jun -->
+<div class="flex flex-col items-center h-full justify-end group cursor-pointer">
+<div class="flex items-end gap-1 sm:gap-1.5 w-full justify-center">
+<div class="w-3.5 sm:w-5 bg-primary/80 group-hover:bg-primary rounded-t-sm transition-all" style="height: 144px;" title="Jun Income: ₹1,35,000"></div>
+<div class="w-3.5 sm:w-5 bg-error/70 group-hover:bg-error rounded-t-sm transition-all" style="height: 100px;" title="Jun Expenses: ₹94,000"></div>
+</div>
+<span class="mt-2 font-label-sm text-label-sm text-secondary group-hover:text-on-surface">JUN</span>
+</div>
+<!-- Jul -->
+<div class="flex flex-col items-center h-full justify-end group cursor-pointer">
+<div class="flex items-end gap-1 sm:gap-1.5 w-full justify-center">
+<div class="w-3.5 sm:w-5 bg-primary/80 group-hover:bg-primary rounded-t-sm transition-all" style="height: 147px;" title="Jul Income: ₹1,38,000"></div>
+<div class="w-3.5 sm:w-5 bg-error/70 group-hover:bg-error rounded-t-sm transition-all" style="height: 94px;" title="Jul Expenses: ₹88,500"></div>
+</div>
+<span class="mt-2 font-label-sm text-label-sm text-secondary group-hover:text-on-surface">JUL</span>
+</div>
+<!-- Aug -->
+<div class="flex flex-col items-center h-full justify-end group cursor-pointer">
+<div class="flex items-end gap-1 sm:gap-1.5 w-full justify-center">
+<div class="w-3.5 sm:w-5 bg-primary/80 group-hover:bg-primary rounded-t-sm transition-all" style="height: 149px;" title="Aug Income: ₹1,40,000"></div>
+<div class="w-3.5 sm:w-5 bg-error/70 group-hover:bg-error rounded-t-sm transition-all" style="height: 97px;" title="Aug Expenses: ₹91,200"></div>
+</div>
+<span class="mt-2 font-label-sm text-label-sm text-secondary group-hover:text-on-surface">AUG</span>
+</div>
+<!-- Sep -->
+<div class="flex flex-col items-center h-full justify-end group cursor-pointer">
+<div class="flex items-end gap-1 sm:gap-1.5 w-full justify-center">
+<div class="w-3.5 sm:w-5 bg-primary/80 group-hover:bg-primary rounded-t-sm transition-all" style="height: 146px;" title="Sep Income: ₹1,37,000"></div>
+<div class="w-3.5 sm:w-5 bg-error/70 group-hover:bg-error rounded-t-sm transition-all" style="height: 94px;" title="Sep Expenses: ₹88,350"></div>
+</div>
+<span class="mt-2 font-label-sm text-label-sm text-secondary group-hover:text-on-surface">SEP</span>
+</div>
+<!-- Oct (Current Highlighted) -->
+<div class="flex flex-col items-center h-full justify-end group cursor-pointer relative">
+<div class="absolute -top-7 px-2 py-0.5 bg-primary text-on-primary text-[10px] font-label-sm rounded shadow-sm whitespace-nowrap animate-bounce">
+              Surplus Peak
+            </div>
+<div class="flex items-end gap-1 sm:gap-1.5 w-full justify-center">
+<div class="w-3.5 sm:w-5 bg-primary rounded-t-sm transition-all" style="height: 160px;" title="Oct Income: ₹1,48,500"></div>
+<div class="w-3.5 sm:w-5 bg-error rounded-t-sm transition-all" style="height: 90px;" title="Oct Expenses: ₹84,650"></div>
+</div>
+<span class="mt-2 font-label-sm text-label-sm font-bold text-primary">OCT</span>
+</div>
+</div>
+</div>
+<!-- Quick Trajectory Insight Footnote -->
+<div class="mt-space-md pt-space-sm flex items-center justify-between text-secondary bg-surface-container-low px-space-md py-space-sm rounded-lg">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px] text-primary">insights</span>
+<span class="font-body-sm text-body-sm">6-Month Average Savings Run-Rate: <span class="font-bold text-on-surface">₹48,930 / mo</span></span>
+</div>
+<span class="font-label-sm text-label-sm text-primary font-semibold">Telemetry Optimal</span>
+</div>
+</div>
+<!-- Right: Expenditure Breakdown Donut Matrix (5 Cols) -->
+<div class="lg:col-span-5 rounded-xl bg-surface-container-lowest p-space-lg shadow-sm flex flex-col justify-between">
+<div class="flex items-center justify-between mb-space-sm">
+<div>
+<h2 class="font-headline-md text-headline-md text-on-surface font-bold">Expense Breakdown</h2>
+<p class="font-body-sm text-body-sm text-secondary">Categorical distribution for ₹84,650</p>
+</div>
+<button class="text-tertiary font-label-sm text-label-sm hover:underline">View All 6</button>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-12 gap-space-md items-center my-space-sm">
+<!-- SVG Donut Chart with Center Anchor Metric -->
+<div class="sm:col-span-5 flex justify-center items-center relative">
+<svg class="w-40 h-40 transform -rotate-90" viewbox="0 0 120 120">
+<!-- Background Ring -->
+<circle cx="60" cy="60" fill="none" r="48" stroke="#E2E8F0" stroke-width="14"></circle>
+<!-- Housing (33.7%) - slate -->
+<circle cx="60" cy="60" fill="none" r="48" stroke="#213145" stroke-dasharray="101.6 301.6" stroke-dashoffset="0" stroke-width="14"></circle>
+<!-- Food & Dining (27.0%) - emerald -->
+<circle cx="60" cy="60" fill="none" r="48" stroke="#006948" stroke-dasharray="81.4 301.6" stroke-dashoffset="-101.6" stroke-width="14"></circle>
+<!-- Shopping (14.6%) - amber -->
+<circle cx="60" cy="60" fill="none" r="48" stroke="#F59E0B" stroke-dasharray="44.0 301.6" stroke-dashoffset="-183.0" stroke-width="14"></circle>
+<!-- Education (10.0%) - indigo/tertiary -->
+<circle cx="60" cy="60" fill="none" r="48" stroke="#0058be" stroke-dasharray="30.1 301.6" stroke-dashoffset="-227.0" stroke-width="14"></circle>
+<!-- Transport (9.2%) - sky blue -->
+<circle cx="60" cy="60" fill="none" r="48" stroke="#38BDF8" stroke-dasharray="27.7 301.6" stroke-dashoffset="-257.1" stroke-width="14"></circle>
+<!-- Misc (5.5%) - neutral -->
+<circle cx="60" cy="60" fill="none" r="48" stroke="#94A3B8" stroke-dasharray="16.5 301.6" stroke-dashoffset="-284.8" stroke-width="14"></circle>
+</svg>
+<div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-center">
+<span class="font-label-sm text-[10px] text-secondary uppercase font-semibold">Total Spend</span>
+<span class="font-label-lg text-label-lg text-on-surface font-bold">₹84,650</span>
+</div>
+</div>
+<!-- Legend Stack with Percentages -->
+<div class="sm:col-span-7 flex flex-col gap-2">
+<!-- Item 1 -->
+<div class="flex items-center justify-between text-body-sm">
+<div class="flex items-center gap-2">
+<span class="w-2.5 h-2.5 rounded-full bg-[#213145]"></span>
+<span class="text-on-surface font-medium">Housing &amp; Rent</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="font-semibold text-on-surface">₹28,500</span>
+<span class="text-secondary text-label-sm">33.7%</span>
+</div>
+</div>
+<!-- Item 2 -->
+<div class="flex items-center justify-between text-body-sm">
+<div class="flex items-center gap-2">
+<span class="w-2.5 h-2.5 rounded-full bg-primary"></span>
+<span class="text-on-surface font-medium">Food &amp; Groceries</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="font-semibold text-on-surface">₹22,850</span>
+<span class="text-secondary text-label-sm">27.0%</span>
+</div>
+</div>
+<!-- Item 3 -->
+<div class="flex items-center justify-between text-body-sm">
+<div class="flex items-center gap-2">
+<span class="w-2.5 h-2.5 rounded-full bg-[#F59E0B]"></span>
+<span class="text-on-surface font-medium">Shopping &amp; Retail</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="font-semibold text-on-surface">₹12,400</span>
+<span class="text-secondary text-label-sm">14.6%</span>
+</div>
+</div>
+<!-- Item 4 -->
+<div class="flex items-center justify-between text-body-sm">
+<div class="flex items-center gap-2">
+<span class="w-2.5 h-2.5 rounded-full bg-[#0058be]"></span>
+<span class="text-on-surface font-medium">Education &amp; Skills</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="font-semibold text-on-surface">₹8,500</span>
+<span class="text-secondary text-label-sm">10.0%</span>
+</div>
+</div>
+<!-- Item 5 -->
+<div class="flex items-center justify-between text-body-sm">
+<div class="flex items-center gap-2">
+<span class="w-2.5 h-2.5 rounded-full bg-[#38BDF8]"></span>
+<span class="text-on-surface font-medium">Transit &amp; Fuel</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="font-semibold text-on-surface">₹7,800</span>
+<span class="text-secondary text-label-sm">9.2%</span>
+</div>
+</div>
+<!-- Item 6 -->
+<div class="flex items-center justify-between text-body-sm">
+<div class="flex items-center gap-2">
+<span class="w-2.5 h-2.5 rounded-full bg-[#94A3B8]"></span>
+<span class="text-secondary font-medium">Misc &amp; Others</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="font-semibold text-on-surface">₹4,600</span>
+<span class="text-secondary text-label-sm">5.5%</span>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-space-xs pt-space-xs text-secondary font-body-sm text-body-sm">
+<span class="font-label-sm text-primary font-semibold">Tip:</span> Essential fixed expenditures accounted for 42.9% of this month's outlay.
+      </div>
+</div>
+</section>
+<!-- Budget Health & PaisaPilot Intelligent Copilot Insight -->
+<section class="grid grid-cols-1 lg:grid-cols-12 gap-space-md mb-space-lg">
+<!-- Budget Allocations & Health Tracker (7 Cols) -->
+<div class="lg:col-span-7 rounded-xl bg-surface-container-lowest p-space-lg shadow-sm">
+<div class="flex items-center justify-between mb-space-md">
+<div>
+<h2 class="font-headline-md text-headline-md text-on-surface font-bold">Monthly Budget Health</h2>
+<p class="font-body-sm text-body-sm text-secondary">Real-time consumption meters for October limits</p>
+</div>
+<a class="inline-flex items-center gap-1 font-label-md text-label-md text-tertiary hover:underline" href="#">
+<span>Manage Limits</span>
+<span class="material-symbols-outlined text-[16px]">chevron_right</span>
+</a>
+</div>
+<div class="space-y-space-md">
+<!-- Budget Item 1: Food & Groceries (Amber / Warning) -->
+<div class="p-space-sm rounded-lg bg-surface-container-low">
+<div class="flex items-center justify-between mb-1.5">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[20px] text-[#F59E0B]">restaurant</span>
+<span class="font-label-md text-label-md text-on-surface">Food &amp; Groceries</span>
+</div>
+<div class="flex items-center gap-2 font-label-sm text-label-sm">
+<span class="text-on-surface font-bold">₹22,850</span>
+<span class="text-secondary">/ ₹25,000</span>
+<span class="px-2 py-0.5 rounded bg-amber-100 text-amber-800 text-[10px]">91.4% Spent</span>
+</div>
+</div>
+<div class="w-full bg-surface-container h-2 rounded-full overflow-hidden">
+<div class="bg-[#F59E0B] h-full rounded-full" style="width: 91.4%;"></div>
+</div>
+<div class="flex justify-between items-center mt-1.5 text-secondary text-body-sm">
+<span class="text-amber-700 font-medium text-label-sm">Approaching threshold · ₹2,150 available</span>
+<span>4 days remaining</span>
+</div>
+</div>
+<!-- Budget Item 2: Housing & Utilities (Emerald / Healthy) -->
+<div class="p-space-sm rounded-lg bg-surface-container-low">
+<div class="flex items-center justify-between mb-1.5">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[20px] text-primary">apartment</span>
+<span class="font-label-md text-label-md text-on-surface">Housing &amp; Utilities</span>
+</div>
+<div class="flex items-center gap-2 font-label-sm text-label-sm">
+<span class="text-on-surface font-bold">₹28,500</span>
+<span class="text-secondary">/ ₹30,000</span>
+<span class="px-2 py-0.5 rounded bg-surface-container-high text-primary text-[10px]">95.0% Fixed</span>
+</div>
+</div>
+<div class="w-full bg-surface-container h-2 rounded-full overflow-hidden">
+<div class="bg-primary h-full rounded-full" style="width: 95.0%;"></div>
+</div>
+<div class="flex justify-between items-center mt-1.5 text-secondary text-body-sm">
+<span class="text-primary font-medium text-label-sm">Fully settled for the month · Zero dues</span>
+<span>₹1,500 buffer intact</span>
+</div>
+</div>
+<!-- Budget Item 3: Shopping & Leisure (Rose / Exceeded) -->
+<div class="p-space-sm rounded-lg bg-surface-container-low">
+<div class="flex items-center justify-between mb-1.5">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[20px] text-error">shopping_bag</span>
+<span class="font-label-md text-label-md text-on-surface">Shopping &amp; Leisure</span>
+</div>
+<div class="flex items-center gap-2 font-label-sm text-label-sm">
+<span class="text-error font-bold">₹12,400</span>
+<span class="text-secondary">/ ₹12,000</span>
+<span class="px-2 py-0.5 rounded bg-error-container text-error text-[10px]">103.3% Over</span>
+</div>
+</div>
+<div class="w-full bg-surface-container h-2 rounded-full overflow-hidden">
+<div class="bg-error h-full rounded-full" style="width: 100%;"></div>
+</div>
+<div class="flex justify-between items-center mt-1.5 text-secondary text-body-sm">
+<span class="text-error font-medium text-label-sm">Exceeded quota by ₹400 (Diwali festive purchases)</span>
+<span class="text-error">Rebalance needed</span>
+</div>
+</div>
+<!-- Budget Item 4: Transit & Commute (Emerald / Safe) -->
+<div class="p-space-sm rounded-lg bg-surface-container-low">
+<div class="flex items-center justify-between mb-1.5">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[20px] text-primary">local_taxi</span>
+<span class="font-label-md text-label-md text-on-surface">Transit &amp; Commute</span>
+</div>
+<div class="flex items-center gap-2 font-label-sm text-label-sm">
+<span class="text-on-surface font-bold">₹7,800</span>
+<span class="text-secondary">/ ₹10,000</span>
+<span class="px-2 py-0.5 rounded bg-surface-container-high text-primary text-[10px]">78.0% Safe</span>
+</div>
+</div>
+<div class="w-full bg-surface-container h-2 rounded-full overflow-hidden">
+<div class="bg-primary h-full rounded-full" style="width: 78.0%;"></div>
+</div>
+<div class="flex justify-between items-center mt-1.5 text-secondary text-body-sm">
+<span class="text-primary font-medium text-label-sm">Healthy runway · ₹2,200 remaining</span>
+<span>Fuel &amp; Cabs</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Right: PaisaPilot Copilot Waypoint Insight Card (5 Cols) -->
+<div class="lg:col-span-5 rounded-xl bg-inverse-surface text-surface p-space-lg shadow-md flex flex-col justify-between relative overflow-hidden">
+<!-- Decorative Backdrop Geometry -->
+<div class="absolute -top-12 -right-12 w-48 h-48 rounded-full bg-primary/10 blur-2xl pointer-events-none"></div>
+<div>
+<div class="flex items-center justify-between mb-space-md">
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 rounded-lg bg-primary text-on-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-[20px]">explore</span>
+</div>
+<span class="font-label-sm text-label-sm text-primary-fixed tracking-wider uppercase">PaisaPilot Copilot</span>
+</div>
+<span class="px-2.5 py-0.5 rounded-full bg-surface-container-highest/20 text-surface-dim font-label-sm text-[11px]">Waypoint AI #1024</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-surface-bright font-bold leading-tight">
+          Dining discipline saved ₹3,120: Ready to deploy to your Emergency Reserve?
+        </h3>
+<p class="mt-space-sm font-body-md text-body-md text-surface-dim leading-relaxed">
+          Your dining out expenses decreased by <span class="text-primary-fixed font-semibold">12%</span> compared to September, creating an unallocated surplus of <span class="text-surface-bright font-semibold">₹3,120</span>. If directed into your 7.1% Liquid Mutual Fund, you will achieve your <span class="text-surface-bright font-semibold">₹3,00,000 Milestone</span> 2 months earlier.
+        </p>
+<!-- Metric Waypoint Stat Pill -->
+<div class="mt-space-md p-space-sm rounded-lg bg-surface-container-highest/15 backdrop-blur-sm grid grid-cols-2 gap-space-sm">
+<div>
+<span class="text-surface-dim text-label-sm font-label-sm block">Surplus Available</span>
+<span class="text-primary-fixed font-headline-md text-headline-md font-bold">₹3,120</span>
+</div>
+<div>
+<span class="text-surface-dim text-label-sm font-label-sm block">Milestone ETA</span>
+<span class="text-surface-bright font-headline-md text-headline-md font-bold">Jan 2025</span>
+</div>
+</div>
+</div>
+<div class="mt-space-lg flex flex-col sm:flex-row items-center gap-space-sm">
+<button class="w-full sm:w-auto flex-1 py-2.5 px-4 rounded-lg bg-primary hover:bg-primary-container text-on-primary font-label-md text-label-md font-semibold text-center transition-colors">
+          Allocate ₹3,120 to Goal
+        </button>
+<button class="w-full sm:w-auto py-2.5 px-4 rounded-lg bg-surface-container-highest/25 hover:bg-surface-container-highest/40 text-surface-bright font-label-md text-label-md transition-colors">
+          View Trend Analysis
+        </button>
+</div>
+</div>
+</section>
+<!-- Live Transactions Ledger (Detailed Indian Context Data Grid) -->
+<section class="rounded-xl bg-surface-container-lowest p-space-lg shadow-sm mb-space-lg">
+<!-- Header with Filter Controls -->
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-space-md pb-space-md">
+<div>
+<h2 class="font-headline-md text-headline-md text-on-surface font-bold">Recent Ledger Activity</h2>
+<p class="font-body-sm text-body-sm text-secondary">Verified transactions from connected UPI handles and NetBanking</p>
+</div>
+<!-- Filter Controls Pill Tab -->
+<div class="flex items-center gap-space-xs flex-wrap">
+<div class="inline-flex p-1 rounded-lg bg-surface-container-high text-label-sm font-label-sm">
+<button class="px-3 py-1 rounded bg-surface-container-lowest text-on-surface shadow-xs font-semibold">All (142)</button>
+<button class="px-3 py-1 rounded text-secondary hover:text-on-surface transition-colors">Income</button>
+<button class="px-3 py-1 rounded text-secondary hover:text-on-surface transition-colors">Expense</button>
+<button class="px-3 py-1 rounded text-secondary hover:text-on-surface transition-colors">UPI / QR</button>
+<button class="px-3 py-1 rounded text-secondary hover:text-on-surface transition-colors">Cards</button>
+</div>
+<a class="px-3.5 py-1.5 rounded-lg bg-surface-container-low text-tertiary hover:bg-surface-container font-label-md text-label-md inline-flex items-center gap-1 transition-colors" href="#">
+<span>Detailed Ledger</span>
+<span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</a>
+</div>
+</div>
+<!-- Data Table Container -->
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low/70 text-secondary font-label-sm text-label-sm uppercase tracking-wider">
+<th class="py-3 px-4 rounded-l-lg">Beneficiary / Merchant</th>
+<th class="py-3 px-4">Category</th>
+<th class="py-3 px-4">Timestamp</th>
+<th class="py-3 px-4">Payment Channel</th>
+<th class="py-3 px-4">Type</th>
+<th class="py-3 px-4 text-right">Amount</th>
+<th class="py-3 px-4 rounded-r-lg text-center">Status</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-surface-container-low text-body-sm font-body-sm">
+<!-- Row 1: Salary Credit -->
+<tr class="hover:bg-surface-container-low/40 transition-colors group">
+<td class="py-3.5 px-4">
+<div class="flex items-center gap-3">
+<div class="w-9 h-9 rounded-lg bg-primary-fixed/50 text-primary flex items-center justify-center font-bold">
+<span class="material-symbols-outlined text-[20px]">corporate_fare</span>
+</div>
+<div>
+<div class="font-label-md text-label-md text-on-surface font-semibold">Tech Solutions Pvt Ltd</div>
+<div class="text-secondary text-body-sm text-[11px]">Monthly Payroll Credit · Oct 2024</div>
+</div>
+</div>
+</td>
+<td class="py-3.5 px-4">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container-low text-primary font-label-sm text-label-sm">
+<span class="w-1.5 h-1.5 rounded-full bg-primary"></span>
+                Salary / Income
+              </span>
+</td>
+<td class="py-3.5 px-4 text-secondary whitespace-nowrap">
+              Oct 28, 2024 · 09:30 AM
+            </td>
+<td class="py-3.5 px-4 text-on-surface">
+<span class="font-medium">HDFC Direct Deposit</span>
+</td>
+<td class="py-3.5 px-4">
+<span class="font-label-sm text-label-sm text-primary uppercase">Credit</span>
+</td>
+<td class="py-3.5 px-4 text-right font-semibold text-primary text-label-lg whitespace-nowrap">
+              +₹1,48,500.00
+            </td>
+<td class="py-3.5 px-4 text-center">
+<span class="px-2.5 py-0.5 rounded-full bg-surface-container-high text-primary font-label-sm text-[11px]">Settled</span>
+</td>
+</tr>
+<!-- Row 2: Nature's Basket -->
+<tr class="hover:bg-surface-container-low/40 transition-colors group">
+<td class="py-3.5 px-4">
+<div class="flex items-center gap-3">
+<div class="w-9 h-9 rounded-lg bg-surface-container text-on-surface flex items-center justify-center">
+<span class="material-symbols-outlined text-[20px]">shopping_cart</span>
+</div>
+<div>
+<div class="font-label-md text-label-md text-on-surface font-semibold">Nature's Basket Koramangala</div>
+<div class="text-secondary text-body-sm text-[11px]">Weekly Organic Grocery Supplies</div>
+</div>
+</div>
+</td>
+<td class="py-3.5 px-4">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container-low text-secondary font-label-sm text-label-sm">
+<span class="w-1.5 h-1.5 rounded-full bg-primary"></span>
+                Food &amp; Groceries
+              </span>
+</td>
+<td class="py-3.5 px-4 text-secondary whitespace-nowrap">
+              Oct 27, 2024 · 07:15 PM
+            </td>
+<td class="py-3.5 px-4 text-on-surface">
+<span class="font-medium">Google Pay (UPI)</span>
+</td>
+<td class="py-3.5 px-4">
+<span class="font-label-sm text-label-sm text-secondary uppercase">Debit</span>
+</td>
+<td class="py-3.5 px-4 text-right font-semibold text-on-surface text-label-lg whitespace-nowrap">
+              -₹2,840.00
+            </td>
+<td class="py-3.5 px-4 text-center">
+<span class="px-2.5 py-0.5 rounded-full bg-surface-container-high text-primary font-label-sm text-[11px]">Settled</span>
+</td>
+</tr>
+<!-- Row 3: BESCOM Electricity Bill -->
+<tr class="hover:bg-surface-container-low/40 transition-colors group">
+<td class="py-3.5 px-4">
+<div class="flex items-center gap-3">
+<div class="w-9 h-9 rounded-lg bg-surface-container text-on-surface flex items-center justify-center">
+<span class="material-symbols-outlined text-[20px]">bolt</span>
+</div>
+<div>
+<div class="font-label-md text-label-md text-on-surface font-semibold">BESCOM Electricity Board</div>
+<div class="text-secondary text-body-sm text-[11px]">Consumer ID #4928173429</div>
+</div>
+</div>
+</td>
+<td class="py-3.5 px-4">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container-low text-secondary font-label-sm text-label-sm">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+                Bills &amp; Utilities
+              </span>
+</td>
+<td class="py-3.5 px-4 text-secondary whitespace-nowrap">
+              Oct 25, 2024 · 11:20 AM
+            </td>
+<td class="py-3.5 px-4 text-on-surface">
+<span class="font-medium">Cred UPI Auto-Pay</span>
+</td>
+<td class="py-3.5 px-4">
+<span class="font-label-sm text-label-sm text-secondary uppercase">Debit</span>
+</td>
+<td class="py-3.5 px-4 text-right font-semibold text-on-surface text-label-lg whitespace-nowrap">
+              -₹3,450.00
+            </td>
+<td class="py-3.5 px-4 text-center">
+<span class="px-2.5 py-0.5 rounded-full bg-surface-container-high text-primary font-label-sm text-[11px]">Settled</span>
+</td>
+</tr>
+<!-- Row 4: Amazon India -->
+<tr class="hover:bg-surface-container-low/40 transition-colors group">
+<td class="py-3.5 px-4">
+<div class="flex items-center gap-3">
+<div class="w-9 h-9 rounded-lg bg-surface-container text-on-surface flex items-center justify-center">
+<span class="material-symbols-outlined text-[20px]">inventory_2</span>
+</div>
+<div>
+<div class="font-label-md text-label-md text-on-surface font-semibold">Amazon India Marketplace</div>
+<div class="text-secondary text-body-sm text-[11px]">Ergonomic Desk Lumbar Chair</div>
+</div>
+</div>
+</td>
+<td class="py-3.5 px-4">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container-low text-secondary font-label-sm text-label-sm">
+<span class="w-1.5 h-1.5 rounded-full bg-[#F59E0B]"></span>
+                Shopping &amp; Retail
+              </span>
+</td>
+<td class="py-3.5 px-4 text-secondary whitespace-nowrap">
+              Oct 24, 2024 · 03:45 PM
+            </td>
+<td class="py-3.5 px-4 text-on-surface">
+<span class="font-medium">ICICI Amazon Pay CC</span>
+</td>
+<td class="py-3.5 px-4">
+<span class="font-label-sm text-label-sm text-secondary uppercase">Debit</span>
+</td>
+<td class="py-3.5 px-4 text-right font-semibold text-on-surface text-label-lg whitespace-nowrap">
+              -₹6,999.00
+            </td>
+<td class="py-3.5 px-4 text-center">
+<span class="px-2.5 py-0.5 rounded-full bg-surface-container-high text-primary font-label-sm text-[11px]">Settled</span>
+</td>
+</tr>
+<!-- Row 5: Uber India -->
+<tr class="hover:bg-surface-container-low/40 transition-colors group">
+<td class="py-3.5 px-4">
+<div class="flex items-center gap-3">
+<div class="w-9 h-9 rounded-lg bg-surface-container text-on-surface flex items-center justify-center">
+<span class="material-symbols-outlined text-[20px]">directions_car</span>
+</div>
+<div>
+<div class="font-label-md text-label-md text-on-surface font-semibold">Uber India Technologies</div>
+<div class="text-secondary text-body-sm text-[11px]">Ride: HSR Layout to Indiranagar</div>
+</div>
+</div>
+</td>
+<td class="py-3.5 px-4">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container-low text-secondary font-label-sm text-label-sm">
+<span class="w-1.5 h-1.5 rounded-full bg-[#38BDF8]"></span>
+                Transit &amp; Commute
+              </span>
+</td>
+<td class="py-3.5 px-4 text-secondary whitespace-nowrap">
+              Oct 24, 2024 · 08:30 AM
+            </td>
+<td class="py-3.5 px-4 text-on-surface">
+<span class="font-medium">Paytm Wallet / UPI</span>
+</td>
+<td class="py-3.5 px-4">
+<span class="font-label-sm text-label-sm text-secondary uppercase">Debit</span>
+</td>
+<td class="py-3.5 px-4 text-right font-semibold text-on-surface text-label-lg whitespace-nowrap">
+              -₹385.00
+            </td>
+<td class="py-3.5 px-4 text-center">
+<span class="px-2.5 py-0.5 rounded-full bg-surface-container-high text-primary font-label-sm text-[11px]">Settled</span>
+</td>
+</tr>
+<!-- Row 6: Coursera Upskilling -->
+<tr class="hover:bg-surface-container-low/40 transition-colors group">
+<td class="py-3.5 px-4">
+<div class="flex items-center gap-3">
+<div class="w-9 h-9 rounded-lg bg-surface-container text-on-surface flex items-center justify-center">
+<span class="material-symbols-outlined text-[20px]">school</span>
+</div>
+<div>
+<div class="font-label-md text-label-md text-on-surface font-semibold">Coursera Inc · Online Cert</div>
+<div class="text-secondary text-body-sm text-[11px]">Cloud Architecture Specialization</div>
+</div>
+</div>
+</td>
+<td class="py-3.5 px-4">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container-low text-secondary font-label-sm text-label-sm">
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary"></span>
+                Education &amp; Skills
+              </span>
+</td>
+<td class="py-3.5 px-4 text-secondary whitespace-nowrap">
+              Oct 22, 2024 · 06:10 PM
+            </td>
+<td class="py-3.5 px-4 text-on-surface">
+<span class="font-medium">SBI Platinum Debit Card</span>
+</td>
+<td class="py-3.5 px-4">
+<span class="font-label-sm text-label-sm text-secondary uppercase">Debit</span>
+</td>
+<td class="py-3.5 px-4 text-right font-semibold text-on-surface text-label-lg whitespace-nowrap">
+              -₹3,999.00
+            </td>
+<td class="py-3.5 px-4 text-center">
+<span class="px-2.5 py-0.5 rounded-full bg-surface-container-high text-primary font-label-sm text-[11px]">Settled</span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Table Footer with Ledger Stats -->
+<div class="mt-space-md pt-space-sm flex flex-col sm:flex-row items-center justify-between gap-space-sm text-secondary font-body-sm text-body-sm">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-primary"></span>
+<span>Showing 6 of 142 total verified entries this billing cycle</span>
+</div>
+<div class="flex items-center gap-2">
+<button class="px-3 py-1 rounded bg-surface-container-low hover:bg-surface-container text-on-surface font-label-sm text-label-sm transition-colors">Previous</button>
+<span class="font-label-sm text-label-sm text-on-surface">Page 1 of 24</span>
+<button class="px-3 py-1 rounded bg-surface-container-low hover:bg-surface-container text-on-surface font-label-sm text-label-sm transition-colors">Next</button>
+</div>
+</div>
+</section>
+</div></main></div></body></html>
