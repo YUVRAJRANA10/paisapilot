@@ -2,7 +2,7 @@
 
 > **Tagline:** Apne paison ke pilot khud baniye. ✈️
 >
-> **Current status:** Frontend implementation in progress — Milestone 1: Working Dashboard
+> **Current status:** Phase 3 backend foundation implemented — authentication and finance APIs remain future milestones
 
 This file is the project's persistent source of truth for the team and coding assistants. Read it before proposing or changing the architecture. Update it only when the team agrees to a decision. Do not treat ideas marked *proposed*, *open*, or *future* as confirmed requirements.
 
