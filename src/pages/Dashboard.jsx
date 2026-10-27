@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import { Plus, ArrowRight, Clock, TrendingUp, TrendingDown, CheckCircle, AlertCircle, Info, DollarSign, Wallet } from 'lucide-react'
-import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '../components/ui/Card'
+import { Card, CardHeader, CardTitle, CardSubtitle, CardContent, CardFooter } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
 import { Badge } from '../components/ui/Badge'
 import { Table } from '../components/ui/Table'
@@ -13,6 +13,7 @@ import { TransactionForm } from '../components/forms/TransactionForm'
 import { demoAdapter } from '../services/demoAdapter'
 import { formatINR, formatDate, formatShortDate, getMonthsArray, calculateSavingsRate, calculatePercentage } from '../utils/format'
 import { cn } from '../utils/cn'
+import { DEMO_CURRENT_MONTH } from '../services/demoData'
 
 export default function Dashboard() {
   const [summary, setSummary] = useState(null)
@@ -21,7 +22,7 @@ export default function Dashboard() {
   const [recentTransactions, setRecentTransactions] = useState([])
   const [budgets, setBudgets] = useState([])
   const [insights, setInsights] = useState([])
-  const [selectedMonth, setSelectedMonth] = useState(new Date().toISOString().slice(0, 7))
+  const [selectedMonth, setSelectedMonth] = useState(DEMO_CURRENT_MONTH)
   const [showAddModal, setShowAddModal] = useState(false)
 
   const loadData = useCallback(async () => {
@@ -31,12 +32,12 @@ export default function Dashboard() {
         demoAdapter.getBudgets({ month: selectedMonth }),
       ])
 
-      setSummary(reportResult.summary)
+      setSummary(reportResult)
       setCategorySpending(reportResult.categorySpending)
       setMonthlyTrend(reportResult.monthlyTrend)
       setBudgets(budgetResult.budgets)
 
-      const txnResult = await demoAdapter.getTransactions({ limit: 6 })
+      const txnResult = await demoAdapter.getTransactions({ limit: 6, month: selectedMonth })
       setRecentTransactions(txnResult.transactions)
 
       const { DEMO_INSIGHTS } = await import('../services/demoData')
@@ -87,7 +88,7 @@ export default function Dashboard() {
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div className="flex flex-col gap-1">
           <h1 className="headline-lg text-headline-lg text-on-surface font-semibold tracking-tight">
-            Welcome back, Aditi
+            Welcome back, Yuvraj
           </h1>
           <p className="body-md text-body-md text-secondary">
             Your money, under control. Here's your financial flightpath for{' '}
@@ -100,7 +101,7 @@ export default function Dashboard() {
         <div className="flex items-center gap-2 flex-wrap">
           <div className="inline-flex p-1 rounded-xl bg-surface-container-high" role="group">
             <button
-              onClick={() => setSelectedMonth(new Date().toISOString().slice(0, 7))}
+              onClick={() => setSelectedMonth(DEMO_CURRENT_MONTH)}
               className="px-3.5 py-1.5 rounded-lg text-label-md font-label-md bg-surface-container-lowest text-on-surface shadow-sm transition-colors"
             >
               {new Date(selectedMonth + '-01').toLocaleDateString('en-IN', { month: 'long', year: 'numeric' })}
@@ -250,7 +251,7 @@ export default function Dashboard() {
                 <DonutChart data={categorySpending} width={320} height={320} title="" />
               </div>
               <div className="flex-1 space-y-3">
-                {categorySpending.slice(0, 5).map(item => {
+                {categorySpending.map(item => {
                   const catColor = item.categoryColor || '#9ca3af'
                   return (
                     <div key={item.categoryId} className="flex items-center gap-3">

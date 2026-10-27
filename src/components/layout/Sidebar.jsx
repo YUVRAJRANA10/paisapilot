@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom'
-import { LogOut, Menu, ChevronLeft } from 'lucide-react'
+import { LogOut, Menu, ChevronLeft, LayoutDashboard, ListChecks, Target, BarChart3, Settings } from 'lucide-react'
 import { cn } from '../../utils/cn'
 import { DEMO_USER } from '../../utils/constants'
 
@@ -47,8 +47,6 @@ export function Sidebar({ collapsed, onToggle }) {
           { path: '/analytics', label: 'Analytics', icon: 'bar-chart-3' },
           { path: '/settings', label: 'Settings', icon: 'settings' },
         ].map(item => {
-          // Simple icon rendering - just use text labels for now without icon components
-          const IconName = item.icon
           return (
             <NavLink
               key={item.path}
@@ -62,9 +60,7 @@ export function Sidebar({ collapsed, onToggle }) {
                 )
               }
             >
-              <span className="w-5 text-center opacity-50">
-                {getIconSymbol(item.icon)}
-              </span>
+              <span className="w-5 opacity-70"><NavIcon name={item.icon} size={18} /></span>
               {!collapsed && <span>{item.label}</span>}
             </NavLink>
           )
@@ -97,13 +93,14 @@ export function Sidebar({ collapsed, onToggle }) {
   )
 }
 
-function getIconSymbol(iconName) {
-  const symbols = {
-    'layout-dashboard': '📊',
-    'list-checks': '📋',
-    target: '🎯',
-    'bar-chart-3': '📈',
-    settings: '⚙️',
+function NavIcon({ name, size }) {
+  const icons = {
+    'layout-dashboard': LayoutDashboard,
+    'list-checks': ListChecks,
+    target: Target,
+    'bar-chart-3': BarChart3,
+    settings: Settings,
   }
-  return symbols[iconName] || '•'
+  const Icon = icons[name] || Settings
+  return <Icon size={size} />
 }

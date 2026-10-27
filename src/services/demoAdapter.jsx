@@ -3,6 +3,7 @@ import {
   DEMO_CATEGORIES,
   DEMO_BUDGETS,
   DEMO_INSIGHTS,
+  DEMO_CURRENT_MONTH,
 } from './demoData'
 import {
   calculateSavingsRate,
@@ -15,8 +16,8 @@ const delay = (ms = 300) => new Promise(resolve => setTimeout(resolve, ms))
 let demoAuthToken = null
 let demoUser = {
   id: 'demo-user',
-  name: 'Demo User',
-  email: 'demo@example.com',
+  name: 'Yuvraj',
+  email: 'yuvraj@demo.paisapilot.app',
 }
 const demoTransactions = [...DEMO_TRANSACTIONS]
 const demoCategories = [...DEMO_CATEGORIES]
@@ -133,6 +134,9 @@ export const demoAdapter = {
     if (params.category) {
       filtered = filtered.filter(t => t.categoryId === params.category)
     }
+    if (params.month) {
+      filtered = filtered.filter(t => t.date.startsWith(params.month))
+    }
     filtered.sort((a, b) => new Date(b.date) - new Date(a.date))
     const page = parseInt(params.page) || 1
     const limit = parseInt(params.limit) || 20
@@ -150,6 +154,7 @@ export const demoAdapter = {
       id: 'txn-' + Date.now(),
       userId: demoUser.id,
       categoryName: cat ? cat.name : 'Unknown',
+      categoryColor: cat ? cat.color : '#9ca3af',
       ...payload,
     }
     demoTransactions.push(transaction)
@@ -198,7 +203,16 @@ export const demoAdapter = {
   // ---------------- Budgets ----------------
   async getBudgets(params = {}) {
     await delay(300)
-    let filtered = demoBudgets
+    let filtered = demoBudgets.map(budget => ({
+      ...budget,
+      used: demoTransactions
+        .filter(transaction =>
+          transaction.type === 'expense' &&
+          transaction.categoryId === budget.categoryId &&
+          (!params.month || transaction.date.startsWith(params.month))
+        )
+        .reduce((sum, transaction) => sum + transaction.amount, 0),
+    }))
     if (params.month) {
       filtered = filtered.filter(b => b.month === params.month)
     }
@@ -209,7 +223,7 @@ export const demoAdapter = {
   async getDashboardReport(params = {}) {
     await delay(400)
     const { month } = params
-    const targetMonth = month || new Date().toISOString().slice(0, 7)
+    const targetMonth = month || DEMO_CURRENT_MONTH
     const monthTransactions = demoTransactions.filter(t => t.date.startsWith(targetMonth))
     let income = 0
     let expense = 0
@@ -238,8 +252,12 @@ export const demoAdapter = {
         }
       })
       .sort((a, b) => b.total - a.total)
+    const categoryTotal = categorySpendingArray.reduce((sum, item) => sum + item.total, 0)
+    categorySpendingArray.forEach(item => {
+      item.percentage = categoryTotal > 0 ? (item.total / categoryTotal) * 100 : 0
+    })
 
-    const monthlyTrend = getMonthsArray(6).map(m => {
+    const monthlyTrend = getMonthsArray(6, `${targetMonth}-01`).map(m => {
       const monthTxns = demoTransactions.filter(t => t.date.startsWith(m.key))
       let mIncome = 0
       let mExpense = 0
@@ -247,7 +265,7 @@ export const demoAdapter = {
         if (t.type === 'income') mIncome += t.amount
         else mExpense += t.amount
       })
-      return { key: m.key, income: mIncome, expense: mExpense, balance: mIncome - mExpense }
+      return { key: m.key, label: m.label, income: mIncome, expense: mExpense, balance: mIncome - mExpense }
     })
 
     return {

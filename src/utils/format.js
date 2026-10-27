@@ -69,10 +69,10 @@ export function getMonthRange(monthsBack = 0) {
   return getMonthBounds(base)
 }
 
-export function getMonthsArray(count = 6) {
+export function getMonthsArray(count = 6, endDate = new Date()) {
   const months = []
   for (let i = count - 1; i >= 0; i--) {
-    const date = subMonths(new Date(), i)
+    const date = subMonths(endDate instanceof Date ? endDate : new Date(endDate), i)
     months.push({
       key: format(date, 'yyyy-MM'),
       label: format(date, 'MMM yyyy'),

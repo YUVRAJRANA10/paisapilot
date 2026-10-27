@@ -53,8 +53,8 @@ export const CHART_COLORS = [
 
 export const DEMO_USER = {
   id: 'user-demo',
-  name: 'Aditi Sharma',
-  email: 'aditi@demo.paisapilot.app',
+  name: 'Yuvraj',
+  email: 'yuvraj@demo.paisapilot.app',
   currency: 'INR',
   monthlyIncome: 85000,
   timezone: 'Asia/Kolkata',

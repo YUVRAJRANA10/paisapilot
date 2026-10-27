@@ -65,7 +65,7 @@ export default function Register() {
               label="Full Name"
               value={form.name}
               onChange={e => setForm(prev => ({ ...prev, name: e.target.value }))}
-              placeholder="Aditi Sharma"
+              placeholder="Yuvraj"
               required
             />
             <Input

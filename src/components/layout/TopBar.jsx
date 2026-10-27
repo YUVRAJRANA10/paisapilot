@@ -1,9 +1,9 @@
 import { useState } from 'react'
-import { Bell, Search, Sun, Moon, User } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { Search } from 'lucide-react'
 import { cn } from '../../utils/cn'
+import { DEMO_USER } from '../../utils/constants'
 
-export function TopBar({ onSidebarToggle, user, onLogout }) {
+export function TopBar({ user = DEMO_USER }) {
   const [userMenuOpen, setUserMenuOpen] = useState(false)
   const [period, setPeriod] = useState('Current Month')
 
@@ -11,14 +11,6 @@ export function TopBar({ onSidebarToggle, user, onLogout }) {
     <header className="h-16 border-b border-outline/30 bg-surface-container-low backdrop-blur-md sticky top-0 z-20">
       <div className="flex items-center justify-between h-full px-6">
         <div className="flex items-center gap-4">
-          <button
-            onClick={onSidebarToggle}
-            className="p-2 text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-colors"
-            aria-label="Toggle sidebar"
-          >
-            ☰
-          </button>
-
           <div className="hidden md:flex items-center gap-4">
             <div className="relative">
               <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-secondary" />

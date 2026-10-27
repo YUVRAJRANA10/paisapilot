@@ -1,20 +1,21 @@
-import { useState } from 'react'
-import { Plus, X } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { Plus } from 'lucide-react'
 import { Modal } from '../ui/Modal'
 import { Button } from '../ui/Button'
 import { Input } from '../ui/Input'
 import { Select } from '../ui/Select'
-import { Badge } from '../ui/Badge'
 import { cn } from '../../utils/cn'
+import { DEMO_CURRENT_MONTH } from '../../services/demoData'
 import { TRANSACTION_TYPES, PAYMENT_MODES, CATEGORIES_DEMO, RECURRENCE_FREQUENCIES } from '../../utils/constants'
 import { parseINRString } from '../../utils/format'
+import { transactionSchema } from '../../utils/validation'
 
-export function TransactionForm({ isOpen, onClose, onSave }) {
+export function TransactionForm({ isOpen, onClose, onSave, transaction = null }) {
   const [form, setForm] = useState({
     type: 'expense',
     amount: '',
     categoryId: '',
-    date: new Date().toISOString().slice(0, 16),
+    date: `${DEMO_CURRENT_MONTH}-27T12:00`,
     paymentMode: 'UPI',
     note: '',
     isRecurring: false,
@@ -25,6 +26,21 @@ export function TransactionForm({ isOpen, onClose, onSave }) {
   })
   const [errors, setErrors] = useState({})
 
+  useEffect(() => {
+    if (!isOpen) return
+    setForm({
+      type: transaction?.type || 'expense',
+      amount: transaction ? String(transaction.amount / 100) : '',
+      categoryId: transaction?.categoryId || '',
+      date: transaction?.date ? transaction.date.slice(0, 16) : `${DEMO_CURRENT_MONTH}-27T12:00`,
+      paymentMode: transaction?.paymentMode || 'UPI',
+      note: transaction?.note || '',
+      isRecurring: transaction?.isRecurring || false,
+      recurrence: transaction?.recurrence || { frequency: 'monthly', interval: 1 },
+    })
+    setErrors({})
+  }, [isOpen, transaction])
+
   const handleTypeChange = (type) => {
     setForm(prev => ({ ...prev, type }))
   }
@@ -33,27 +49,35 @@ export function TransactionForm({ isOpen, onClose, onSave }) {
     e.preventDefault()
     const newErrors = {}
     if (!form.type) newErrors.type = 'Type is required'
-    if (!form.amount || parseINRString(form.amount) <= 0) newErrors.amount = 'Valid amount required'
+    if (!/^\d+(\.\d{1,2})?$/.test(form.amount.trim()) || parseINRString(form.amount) <= 0) {
+      newErrors.amount = 'Enter a positive amount with up to two decimals'
+    }
     if (!form.categoryId) newErrors.categoryId = 'Category is required'
-    if (!form.date) newErrors.date = 'Date is required'
+    if (!form.date || Number.isNaN(new Date(form.date).getTime())) newErrors.date = 'Valid date is required'
     if (!form.paymentMode) newErrors.paymentMode = 'Payment mode is required'
+
+    const payload = {
+      id: transaction?.id,
+      type: form.type,
+      amount: parseINRString(form.amount),
+      categoryId: form.categoryId,
+      date: form.date,
+      paymentMode: form.paymentMode,
+      note: form.note.trim(),
+      isRecurring: form.isRecurring,
+      recurrence: form.isRecurring ? form.recurrence : undefined,
+    }
+    const validation = transactionSchema.safeParse(payload)
+    if (!validation.success) {
+      validation.error.issues.forEach(issue => {
+        newErrors[issue.path[0]] = issue.message
+      })
+    }
 
     setErrors(newErrors)
     if (Object.keys(newErrors).length > 0) return
 
-    const amountPaise = parseINRString(form.amount)
-    const category = CATEGORIES_DEMO.find(c => c.id === form.categoryId)
-
-    onSave({
-      type: form.type,
-      amount: amountPaise,
-      categoryId: form.categoryId,
-      date: form.date,
-      paymentMode: form.paymentMode,
-      note: form.note,
-      isRecurring: form.isRecurring,
-      recurrence: form.isRecurring ? form.recurrence : undefined,
-    })
+    onSave(payload)
     onClose()
   }
 

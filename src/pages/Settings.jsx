@@ -1,22 +1,24 @@
-import { Link } from 'react-router-dom'
+import { useState } from 'react'
+import { Check, RotateCcw } from 'lucide-react'
+import { Button } from '../components/ui/Button'
+import { Card } from '../components/ui/Card'
+import { useDemoMode } from '../context/DemoContext'
 
 export default function Settings() {
+  const { resetDemoData, demoMode, toggleDemoMode } = useDemoMode()
+  const [saved, setSaved] = useState(false)
+  const [currency, setCurrency] = useState(() => localStorage.getItem('paisapilot_currency') || 'INR')
+  const [timezone, setTimezone] = useState(() => localStorage.getItem('paisapilot_timezone') || 'Asia/Kolkata')
+  const save = () => {
+    localStorage.setItem('paisapilot_currency', currency)
+    localStorage.setItem('paisapilot_timezone', timezone)
+    setSaved(true)
+    setTimeout(() => setSaved(false), 1800)
+  }
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="headline-lg text-headline-lg text-on-surface font-semibold">Settings</h1>
-          <p className="body-md text-body-md text-secondary">
-            Manage your account preferences and demo data.
-          </p>
-        </div>
-        <Link to="/dashboard" className="btn-primary">
-          <span className="mr-2">←</span> Back to Dashboard
-        </Link>
-      </div>
-
-      <div className="bg-surface-container-lowest border border-outline/30 rounded-xl shadow-card p-6 max-w-md">
-        <h2 className="headline-md text-headline-md text-on-surface font-semibold mb-6">Preferences</h2>
+      <div><p className="text-label-sm uppercase tracking-wider text-primary">Workspace</p><h1 className="headline-lg text-on-surface font-semibold">Settings</h1><p className="body-md text-secondary">Manage preferences for your PaisaPilot demo workspace.</p></div>
+      <Card className="max-w-2xl"><h2 className="headline-md text-on-surface font-semibold">Preferences</h2>
 
         <div className="space-y-4">
           <div className="flex items-center justify-between p-4 bg-surface-container-low rounded-lg border border-outline/30">
@@ -24,9 +26,7 @@ export default function Settings() {
               <p className="text-label-sm text-label-sm text-on-surface font-medium">Demo Mode</p>
               <p className="text-xs text-on-surface-variant">Using demonstration data. Reset to start fresh.</p>
             </div>
-            <button className="px-4 py-2 bg-surface-container-lowest text-on-surface border border-outline-variant rounded-lg text-sm font-medium hover:bg-surface-container-low transition-colors">
-              Reset Data
-            </button>
+            <Button variant="secondary" onClick={resetDemoData}><RotateCcw size={15} /> Reset</Button>
           </div>
 
           <div className="flex items-center justify-between p-4 bg-surface-container-low rounded-lg border border-outline/30">
@@ -34,7 +34,7 @@ export default function Settings() {
               <p className="text-label-sm text-label-sm text-on-surface font-medium">Currency</p>
               <p className="text-xs text-on-surface-variant">Indian Rupee (₹)</p>
             </div>
-            <select className="bg-transparent border-none text-on-surface text-sm font-medium focus:outline-none">
+            <select value={currency} onChange={event => setCurrency(event.target.value)} className="bg-transparent border-none text-on-surface text-sm font-medium focus:outline-none" aria-label="Currency">
               <option>INR</option>
               <option>USD</option>
             </select>
@@ -45,12 +45,17 @@ export default function Settings() {
               <p className="text-label-sm text-label-sm text-on-surface font-medium">Timezone</p>
               <p className="text-xs text-on-surface-variant">Asia/Kolkata</p>
             </div>
-            <select className="bg-transparent border-none text-on-surface text-sm font-medium focus:outline-none">
+            <select value={timezone} onChange={event => setTimezone(event.target.value)} className="bg-transparent border-none text-on-surface text-sm font-medium focus:outline-none" aria-label="Timezone">
               <option>Asia/Kolkata</option>
             </select>
           </div>
+          <div className="mt-5 flex items-center justify-between border-t border-outline/30 pt-5">
+            <div><p className="font-medium">Demo mode</p><p className="text-xs text-secondary">Use local demonstration records while presenting.</p></div>
+            <button type="button" onClick={toggleDemoMode} aria-pressed={demoMode} className={`h-6 w-11 rounded-full p-1 transition-colors ${demoMode ? 'bg-primary' : 'bg-outline-variant'}`}><span className={`block h-4 w-4 rounded-full bg-white transition-transform ${demoMode ? 'translate-x-5' : ''}`} /></button>
+          </div>
+          <div className="mt-6 flex justify-end"><Button onClick={save}>{saved ? <><Check size={15} /> Saved</> : 'Save preferences'}</Button></div>
         </div>
-      </div>
+      </Card>
     </div>
   )
 }

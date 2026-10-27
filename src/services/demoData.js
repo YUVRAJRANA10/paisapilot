@@ -245,6 +245,8 @@ export const DEMO_TRANSACTIONS = [
   },
 ]
 
+export const DEMO_CURRENT_MONTH = '2024-10'
+
 // All money values are stored in paise (₹1 = 100 paise).
 
 // Sum of October expenses per category, derived from the transactions above
@@ -308,8 +310,8 @@ export function getDemoState() {
   return {
     user: {
       id: 'user-demo',
-      name: 'Aditi Sharma',
-      email: 'aditi@demo.paisapilot.app',
+      name: 'Yuvraj',
+      email: 'yuvraj@demo.paisapilot.app',
       currency: 'INR',
       monthlyIncome: 8500000,
       timezone: 'Asia/Kolkata',

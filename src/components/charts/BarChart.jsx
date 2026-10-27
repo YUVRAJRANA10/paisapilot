@@ -1,5 +1,6 @@
 import {
   Bar,
+  BarChart as RechartsBarChart,
   XAxis,
   YAxis,
   Tooltip,
@@ -25,7 +26,7 @@ export function BarChart({ data, width, height = 300, title = '' }) {
       )}
       <div style={{ width, height, margin: '0 auto' }}>
         <ResponsiveContainer width="100%" height={height}>
-          <BarChart data={data} margin={{ top: 20, right: 20, bottom: 10, left: 10 }}>
+          <RechartsBarChart data={data} margin={{ top: 20, right: 20, bottom: 10, left: 10 }}>
             <defs>
               <style>{`
                 .recharts-tooltip-wrapper {
@@ -61,7 +62,7 @@ export function BarChart({ data, width, height = 300, title = '' }) {
             <Legend verticalAlign="top" align="right" height={36} />
             <Bar dataKey="income" fill="#006948" radius={[4, 4, 0, 0]} barSize={40} />
             <Bar dataKey="expense" fill="#ef4444" radius={[4, 4, 0, 0]} barSize={40} />
-          </BarChart>
+          </RechartsBarChart>
         </ResponsiveContainer>
       </div>
     </div>
