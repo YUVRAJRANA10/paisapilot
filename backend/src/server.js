@@ -5,6 +5,7 @@ import { connectToDatabase, disconnectFromDatabase } from './db/mongoose.js'
 const app = createApp({
   frontendOrigin: config.FRONTEND_ORIGIN,
   version: '0.1.0',
+  authConfig: config,
 })
 
 let server

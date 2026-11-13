@@ -2,6 +2,43 @@
 
 Last reviewed: 2026-10-27
 
+## Phase 4 authentication milestone
+
+Phase 4 authentication is implemented as a focused backend slice using a
+short-lived JWT in a Secure/HttpOnly/SameSite cookie. Finance models and APIs
+remain out of scope.
+
+### Implemented
+
+- Mongoose `User` model with normalized unique email, Argon2id password hash,
+  currency, timezone, and timestamps.
+- Zod registration and login validation with strict unknown-field rejection.
+- `POST /api/auth/register`.
+- `POST /api/auth/login`.
+- `POST /api/auth/logout`.
+- `GET /api/auth/me`.
+- JWT issuer/audience checks and authenticated-user lookup middleware.
+- Public user responses exclude password hashes and tokens.
+- Authentication tests for cookie issuance, invalid input, and unauthenticated
+  access.
+
+### Security boundary
+
+The JWT is short-lived and stored only in an HttpOnly cookie. Logout clears the
+cookie but does not revoke a token already copied by an attacker before its
+expiry. Production hardening still needs token rotation/revocation, CSRF
+protection, login rate limiting, and live database/integration testing.
+
+### Phase 4 verification
+
+- `npm run test:backend`: passed — 9 tests.
+- `npm run build`: passed.
+- No live authentication request was run against MongoDB Atlas; local MongoDB
+  connectivity was previously verified for the foundation.
+
+The next milestone is transaction and category persistence with authenticated
+user ownership filters.
+
 ## Phase 3 backend foundation
 
 Phase 3 backend foundation is implemented in a separate `backend/` package.

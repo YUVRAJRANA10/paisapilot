@@ -28,7 +28,7 @@ List responses use `{ data, pagination }`, where pagination is
 |---|---|---|---|
 | POST | `/auth/register` | No | Body: `name`, `email`, `password`, `currency`, `timezone`. Returns `201 { user }` and sets cookie. |
 | POST | `/auth/login` | No | Body: `email`, `password`. Returns `200 { user }` and sets cookie. |
-| POST | `/auth/logout` | Yes | Clears/revokes cookie. Returns `204`. |
+| POST | `/auth/logout` | Yes | Clears the session cookie. JWT revocation is a follow-up hardening task. Returns `204`. |
 | GET | `/auth/me` | Yes | Returns `200 { user }` without password fields. |
 
 Passwords are never returned. Duplicate email is `409`; invalid credentials

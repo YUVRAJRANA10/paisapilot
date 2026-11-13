@@ -72,12 +72,11 @@ configuration; demo records must never be sent to the backend.
 - Registration validates name, email, password, currency, and timezone.
 - Passwords are hashed with Argon2id (bcrypt is an acceptable fallback only if
   Argon2id cannot be supported by the deployment).
-- Login creates a short-lived access session represented by a Secure,
-  HttpOnly, SameSite cookie.
-- The cookie contains a signed JWT or an opaque session identifier; the client
-  JavaScript cannot read it.
-- Logout invalidates the session server-side when a session store is used and
-  clears the cookie.
+- Login creates a short-lived signed JWT represented by a Secure, HttpOnly,
+  SameSite cookie.
+- The client JavaScript cannot read the cookie.
+- Logout clears the cookie. A revocation/rotation strategy is still required
+  for production because stateless JWTs remain valid until expiry.
 - `/api/auth/me` resolves the current user from the cookie.
 - Protected routes reject missing, expired, malformed, or revoked credentials
   with the common `401` error shape.

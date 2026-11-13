@@ -14,11 +14,12 @@ Transactions are stored as UTC dates. The user's IANA timezone determines the
 start and end instants for a month or date range. The server, not the browser,
 owns this conversion for reports.
 
-### ADR-003: Use secure HttpOnly cookie authentication
+### ADR-003: Use secure HttpOnly JWT-cookie authentication
 
-The production API will use a short-lived JWT or opaque session in a Secure,
-HttpOnly cookie. JavaScript will not read authentication tokens. Refresh,
-logout, revocation, and CSRF behavior belong to the server.
+The API uses a short-lived signed JWT in a Secure, HttpOnly, SameSite cookie.
+JavaScript does not read the authentication token. Logout clears the cookie;
+token revocation/rotation and CSRF hardening remain follow-up work because a
+stateless JWT cannot be revoked solely by clearing the client cookie.
 
 ### ADR-004: Restrict CORS and send credentials explicitly
 
@@ -78,13 +79,11 @@ delivery and retry policy.
 
 ## Open decisions
 
-- Whether production sessions should use stateless JWT cookies or a server-side
-  session store with rotating identifiers.
+- JWT revocation/rotation strategy and CSRF token strategy for production.
 - Which deployment host will run the protected cron job.
 - Which email provider and sender domain will be approved.
 - Whether PDF export is required for the first release or remains CSV-only.
 - Whether budget alerts are a required baseline feature or a post-baseline
   enhancement, because the plan labels some alert behavior as stretch scope.
-- Whether to retain a refresh endpoint at all when using a server-side session
-  cookie.
+- Whether a refresh endpoint is required for the selected short-lived JWT.
 - Exact rate-limit thresholds and retention policy for audit/security logs.
