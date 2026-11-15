@@ -30,6 +30,31 @@ pipelines. The frontend is still demo-adapter-based.
 The next milestone is budgets, followed by replacing frontend demo calls with
 the real authenticated API adapter.
 
+## Phase 6 budget milestone
+
+Monthly category budgets are now implemented with user ownership and
+transaction-derived usage.
+
+### Implemented
+
+- `Budget` model with unique `(userId, categoryId, month)` identity.
+- `GET /api/budgets?month=YYYY-MM`.
+- `PUT /api/budgets/:categoryId` upsert behavior.
+- User/category ownership checks.
+- Integer-paise limit validation.
+- Expense-only MongoDB aggregation for `usedPaise`.
+- Calculated `remainingPaise` and `utilizationPercent`.
+
+### Verification
+
+- `npm run test:backend`: passed — 16 tests.
+- `npm run build`: passed; existing Vite chunk warnings remain non-blocking.
+- `git diff --check`: passed.
+- Local MongoDB budget smoke test passed with temporary records and cleanup.
+
+The next milestone is the real frontend API adapter and replacing demo
+authentication/data calls with authenticated backend requests.
+
 ## Phase 5 categories and transaction persistence milestone
 
 Phase 5 backend routes are implemented behind the existing JWT-cookie

@@ -16,7 +16,7 @@ as the code. It supplements `PLAN.md` (product requirements) and
 | Phase 3 | Express/Mongoose backend foundation and health checks | Complete |
 | Phase 4 | JWT authentication in HttpOnly cookies | Implemented; hardening remains |
 | Phase 5 | Categories and transaction persistence APIs | Implemented; live DB verification remains |
-| Phase 6 | Reports, budgets, aggregation, and timezone correctness | Reports implemented; budgets next |
+| Phase 6 | Reports, budgets, aggregation, and timezone correctness | Reports and budgets implemented |
 | Phase 7 | Recurring jobs, alerts, and exports | Planned |
 | Phase 8 | Frontend API adapter integration and deployment | Planned |
 
@@ -145,6 +145,8 @@ characters), and `CRON_SECRET` (at least 16 characters). Production requires
 | GET | `/api/reports/summary` | Return monthly income, expense, balance, savings rate, and count |
 | GET | `/api/reports/by-category` | Return user-scoped expense totals by category |
 | GET | `/api/reports/monthly-trend` | Return timezone-aware monthly income and expense totals |
+| GET | `/api/budgets?month=YYYY-MM` | Return monthly budgets with calculated usage |
+| PUT | `/api/budgets/:categoryId` | Upsert a user-owned monthly category budget |
 
 ### Authentication files
 
@@ -170,6 +172,13 @@ characters), and `CRON_SECRET` (at least 16 characters). Production requires
   category ownership checks, filtering, and pagination.
 - `backend/src/routes/finance.js`: authenticated category and transaction
   routes.
+- `backend/src/models/Budget.js`: monthly user/category budget model with a
+  unique `(userId, categoryId, month)` index.
+- `backend/src/services/budgetService.js`: budget upsert/list operations with
+  transaction aggregation for usage and remaining amounts.
+- `backend/src/validators/budgets.js`: strict month, category ID, and paise
+  limit validation.
+- `backend/src/routes/budgets.js`: authenticated budget endpoints.
 - `backend/src/utils/timezone.js`: timezone-aware month and year boundaries.
 - `backend/src/services/reportService.js`: user-scoped MongoDB aggregation
   for summary, category, and monthly trend reports.
@@ -186,7 +195,6 @@ These are documented contracts, not working routes:
 
 ```text
 GET /api/reports/export
-GET/PUT /api/budgets
 GET/PATCH /api/user/preferences
 GET/POST/PUT/DELETE /api/recurring
 POST /api/internal/jobs/recurring
@@ -237,15 +245,17 @@ GET http://localhost:5000/api/ready
 
 ## Verification state
 
-Latest verified reports milestone:
+Latest verified budget milestone:
 
-- Backend tests: 14 passed.
+- Backend tests: 16 passed.
 - Frontend production build: passed.
 - `git diff --check`: passed.
 - Route tests verify authentication and report validation.
 - Local MongoDB smoke test verified aggregation totals, category grouping,
   monthly trend output, and Asia/Kolkata month boundaries with temporary data
   cleaned up afterward.
+- Local MongoDB budget smoke test verified upsert, expense usage aggregation,
+  remaining amount, utilization percentage, and cleanup.
 - Live Atlas connectivity: not verified.
 - Frontend-to-production-API integration: not implemented.
 
@@ -253,17 +263,15 @@ Latest verified reports milestone:
 
 ### Phase 5: categories and transactions
 
-1. Add the monthly Budget model and budget endpoints.
-2. Connect report and transaction data to the frontend adapter.
+1. Connect authentication, categories, transactions, reports, and budgets to
+   the frontend API adapter.
+2. Add CSV export and recurring transaction processing.
 3. Add CSRF protection and login rate limiting before production deployment.
 
 ### Phase 6: reports and budgets
 
-1. Add monthly Budget model.
-2. Add timezone boundary utilities.
-3. Add MongoDB summary/category/trend aggregation pipelines.
-4. Add budget usage, remaining, and overspending responses.
-5. Test paise totals, month boundaries, and zero-income savings rate.
+1. Connect report and budget data to the frontend pages.
+2. Add tests for zero-income savings rate and budget overages.
 
 ### Phase 7: automation and exports
 

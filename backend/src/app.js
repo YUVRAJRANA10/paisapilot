@@ -11,6 +11,8 @@ import { createTransactionService } from './services/transactionService.js'
 import { createFinanceRouter } from './routes/finance.js'
 import { createReportService } from './services/reportService.js'
 import { createReportsRouter } from './routes/reports.js'
+import { createBudgetService } from './services/budgetService.js'
+import { createBudgetsRouter } from './routes/budgets.js'
 
 const defaultAuthConfig = {
   COOKIE_NAME: 'paisapilot_session',
@@ -28,6 +30,7 @@ export function createApp({
   categoryService = null,
   transactionService = null,
   reportService = null,
+  budgetService = null,
   authConfig = defaultAuthConfig,
 } = {}) {
   const app = express()
@@ -62,6 +65,11 @@ export function createApp({
     authService: resolvedAuthService,
     authConfig,
     reportService: reportService || createReportService(),
+  }))
+  app.use('/api', createBudgetsRouter({
+    authService: resolvedAuthService,
+    authConfig,
+    budgetService: budgetService || createBudgetService(),
   }))
   app.use(notFoundHandler)
   app.use(errorHandler)

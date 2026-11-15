@@ -100,6 +100,24 @@ const financeApp = createApp({
       return []
     },
   },
+  budgetService: {
+    async list(userId, month, timezone) {
+      financeCalls.push(['budget-list', userId, month, timezone])
+      return []
+    },
+    async upsert(userId, categoryId, payload, timezone) {
+      financeCalls.push(['budget-upsert', userId, categoryId, payload, timezone])
+      return {
+        id: 'budget-1',
+        categoryId,
+        categoryName: 'Food',
+        ...payload,
+        usedPaise: 2500,
+        remainingPaise: payload.limitPaise - 2500,
+        utilizationPercent: payload.limitPaise > 0 ? 25 : 0,
+      }
+    },
+  },
 })
 
 describe('backend foundation', () => {
@@ -299,6 +317,41 @@ describe('categories and transactions routes', () => {
       transactionCount: 2,
     })
     expect(financeCalls).toContainEqual(['report-summary', 'user-1', '2026-11', undefined])
+  })
+
+  it('protects budgets and validates budget limits', async () => {
+    const unauthenticated = await request(financeApp).get('/api/budgets?month=2026-11')
+    expect(unauthenticated.status).toBe(401)
+
+    const token = jwt.sign({ sub: 'user-1' }, 'test-secret-that-is-at-least-32-characters', {
+      issuer: 'paisapilot-api',
+      audience: 'paisapilot-web',
+    })
+    const invalid = await request(financeApp)
+      .put('/api/budgets/507f1f77bcf86cd799439011')
+      .set('Cookie', `paisapilot_session=${token}`)
+      .send({ month: '2026-11', limitPaise: -1 })
+
+    expect(invalid.status).toBe(400)
+    expect(invalid.body.error.code).toBe('VALIDATION_ERROR')
+  })
+
+  it('passes authenticated budget requests to the budget service', async () => {
+    const token = jwt.sign({ sub: 'user-1' }, 'test-secret-that-is-at-least-32-characters', {
+      issuer: 'paisapilot-api',
+      audience: 'paisapilot-web',
+    })
+    const response = await request(financeApp)
+      .put('/api/budgets/507f1f77bcf86cd799439011')
+      .set('Cookie', `paisapilot_session=${token}`)
+      .send({ month: '2026-11', limitPaise: 10000 })
+
+    expect(response.status).toBe(200)
+    expect(response.body.budget.remainingPaise).toBe(7500)
+    expect(financeCalls).toContainEqual(['budget-upsert', 'user-1', '507f1f77bcf86cd799439011', {
+      month: '2026-11',
+      limitPaise: 10000,
+    }, undefined])
   })
 })
 
