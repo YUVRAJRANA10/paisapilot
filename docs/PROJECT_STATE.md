@@ -1,6 +1,6 @@
 # PaisaPilot Current Project State
 
-Last updated: 2026-11-13
+Last updated: 2026-11-15
 
 This is the working current-state reference for PaisaPilot. Read it before
 starting a new implementation task and update it in the same milestone change
@@ -15,7 +15,7 @@ as the code. It supplements `PLAN.md` (product requirements) and
 | Phase 2 | Architecture, data model, API contract, decisions, test plan | Complete |
 | Phase 3 | Express/Mongoose backend foundation and health checks | Complete |
 | Phase 4 | JWT authentication in HttpOnly cookies | Implemented; hardening remains |
-| Phase 5 | Categories and transaction persistence APIs | Next |
+| Phase 5 | Categories and transaction persistence APIs | Implemented; live DB verification remains |
 | Phase 6 | Reports, budgets, aggregation, and timezone correctness | Planned |
 | Phase 7 | Recurring jobs, alerts, and exports | Planned |
 | Phase 8 | Frontend API adapter integration and deployment | Planned |
@@ -56,7 +56,7 @@ HTTP request
   -> validator
   -> authentication middleware
   -> service
-  -> repository/model (future finance slices)
+  -> repository/model
   -> MongoDB
 ```
 
@@ -134,6 +134,14 @@ characters), and `CRON_SECRET` (at least 16 characters). Production requires
 | POST | `/api/auth/login` | Verify password, set JWT cookie |
 | POST | `/api/auth/logout` | Clear the JWT cookie |
 | GET | `/api/auth/me` | Verify cookie and return current public user |
+| GET | `/api/categories` | List active system and user categories |
+| POST | `/api/categories` | Create a user category |
+| PUT | `/api/categories/:id` | Update a user category |
+| DELETE | `/api/categories/:id` | Archive a user category |
+| GET | `/api/transactions` | List user transactions with filters and pagination |
+| POST | `/api/transactions` | Create a user transaction |
+| PUT | `/api/transactions/:id` | Update a user transaction |
+| DELETE | `/api/transactions/:id` | Delete a user transaction |
 
 ### Authentication files
 
@@ -147,6 +155,18 @@ characters), and `CRON_SECRET` (at least 16 characters). Production requires
 - `backend/src/routes/auth.js`: HTTP validation, cookie setting/clearing, and
   authentication route composition.
 - `backend/src/utils/cookies.js`: cookie parsing and shared options.
+- `backend/src/models/Category.js`: user-owned/system category schema and
+  indexes; archived categories remain available for historical references.
+- `backend/src/models/Transaction.js`: user-owned transaction schema with
+  integer-paise amounts and `{ userId, date }` query index.
+- `backend/src/validators/finance.js`: strict category, transaction, and
+  pagination/filter validation.
+- `backend/src/services/categoryService.js`: user-scoped category listing,
+  creation, updates, and archive-only deletion.
+- `backend/src/services/transactionService.js`: user-scoped transaction CRUD,
+  category ownership checks, filtering, and pagination.
+- `backend/src/routes/finance.js`: authenticated category and transaction
+  routes.
 
 Authentication uses a 15-minute signed JWT in an HttpOnly cookie. The browser
 JavaScript cannot read it. Logout clears the cookie, but stateless JWT
@@ -157,13 +177,11 @@ revocation/rotation is still a production-hardening task.
 These are documented contracts, not working routes:
 
 ```text
-GET/POST/PUT/DELETE /api/transactions
 GET /api/reports/summary
 GET /api/reports/by-category
 GET /api/reports/monthly-trend
 GET /api/reports/export
 GET/PUT /api/budgets
-GET/POST/PUT/DELETE /api/categories
 GET/PATCH /api/user/preferences
 GET/POST/PUT/DELETE /api/recurring
 POST /api/internal/jobs/recurring
@@ -214,11 +232,13 @@ GET http://localhost:5000/api/ready
 
 ## Verification state
 
-Latest verified authentication milestone:
+Latest verified categories/transactions milestone:
 
-- Backend tests: 9 passed.
+- Backend tests: 12 passed.
 - Frontend production build: passed.
-- Local MongoDB connectivity: previously verified.
+- `git diff --check`: passed.
+- Route tests verify authentication, validation, user scoping, and pagination.
+- Live MongoDB persistence tests: not yet run.
 - Live Atlas connectivity: not verified.
 - Frontend-to-production-API integration: not implemented.
 
@@ -226,12 +246,9 @@ Latest verified authentication milestone:
 
 ### Phase 5: categories and transactions
 
-1. Add Category and Transaction Mongoose models and indexes.
-2. Add authenticated repository/service boundaries.
-3. Add category CRUD with archive safety.
-4. Add transaction CRUD with ownership filtering.
-5. Add pagination and date/type/category filters.
-6. Add Supertest coverage for cross-user access and invalid amounts.
+1. Add live MongoDB integration tests for Category and Transaction services.
+2. Add CSRF protection and login rate limiting before production deployment.
+3. Add monthly reports and budgets using MongoDB aggregation pipelines.
 
 ### Phase 6: reports and budgets
 
@@ -266,7 +283,8 @@ For every meaningful implementation milestone:
 3. Update this document and `progress.md`.
 4. Run targeted tests, build, and `git diff --check`.
 5. Inspect the diff and verify no secrets are included.
-6. Create one meaningful commit with the required Copilot co-author trailer.
+6. Create one meaningful commit with your configured Git identity only; do not
+   add a Copilot co-author trailer.
 7. Push the commit to `origin/main` unless the user explicitly says not to.
 8. Report the commit hash, verification results, and remaining work.
 

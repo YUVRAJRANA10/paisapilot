@@ -79,6 +79,9 @@ month is `400/404`; a category belonging to another user is never accepted.
 | PUT | `/categories/:id` | Yes | Updates allow-listed display fields. Returns `200 { category }`. |
 | DELETE | `/categories/:id` | Yes | Archives categories referenced by transactions; returns `204`. |
 
+Category and transaction IDs are user-scoped. A category delete is an archive
+operation so historical transaction references are not destroyed.
+
 ## Preferences
 
 | Method | Path | Auth | Contract |

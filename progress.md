@@ -1,6 +1,36 @@
 # PaisaPilot Project Progress
 
-Last reviewed: 2026-10-27
+Last reviewed: 2026-11-15
+
+## Phase 5 categories and transaction persistence milestone
+
+Phase 5 backend routes are implemented behind the existing JWT-cookie
+authentication boundary. The frontend still uses the demo adapter and is not
+connected to these routes.
+
+### Implemented
+
+- `Category` model with user ownership, optional system categories, archive
+  state, and a user/name uniqueness index.
+- `Transaction` model with user ownership, integer paise amounts, UTC dates,
+  category references, recurrence metadata, and `{ userId, date }` index.
+- Strict Zod validation for category CRUD, transaction CRUD, and list filters.
+- Authenticated category list/create/update/archive routes.
+- Authenticated transaction list/create/update/delete routes.
+- Category ownership checks for transaction creation and updates.
+- User-scoped transaction filters for date, type, and category plus pagination.
+- Supertest coverage for unauthenticated finance access, invalid amounts, and
+  authenticated user propagation.
+
+### Verification
+
+- `npm run test:backend`: passed — 12 tests.
+- `npm run build`: passed; existing Vite chunk warnings remain non-blocking.
+- `git diff --check`: passed.
+- Live MongoDB persistence and Atlas verification remain outstanding.
+
+The next milestone is live database integration testing followed by reports
+and budgets. Frontend pages still use demo data until the API adapter phase.
 
 ## Phase 4 authentication milestone
 

@@ -35,6 +35,59 @@ const app = createApp({
   },
 })
 
+const financeCalls = []
+const financeApp = createApp({
+  frontendOrigin: 'http://localhost:5173',
+  serviceName: 'paisapilot-test-api',
+  version: 'test',
+  authConfig: {
+    COOKIE_NAME: 'paisapilot_session',
+    COOKIE_SECURE: false,
+    COOKIE_SAME_SITE: 'lax',
+    COOKIE_DOMAIN: '',
+    JWT_SECRET: 'test-secret-that-is-at-least-32-characters',
+  },
+  authService: {
+    async getUserById(id) {
+      return id === 'user-1' ? { id, name: 'Yuvraj', email: 'yuvraj@example.com' } : null
+    },
+  },
+  categoryService: {
+    async list(userId) {
+      financeCalls.push(['category-list', userId])
+      return []
+    },
+    async create(userId, payload) {
+      financeCalls.push(['category-create', userId, payload])
+      return { id: 'category-1', ...payload, isSystem: false, isArchived: false }
+    },
+    async update(userId, id, payload) {
+      financeCalls.push(['category-update', userId, id, payload])
+      return { id, ...payload, isSystem: false, isArchived: false }
+    },
+    async archive(userId, id) {
+      financeCalls.push(['category-archive', userId, id])
+    },
+  },
+  transactionService: {
+    async list(userId, query) {
+      financeCalls.push(['transaction-list', userId, query])
+      return { data: [], pagination: { page: query.page, limit: query.limit, total: 0, totalPages: 0 } }
+    },
+    async create(userId, payload) {
+      financeCalls.push(['transaction-create', userId, payload])
+      return { id: 'transaction-1', ...payload }
+    },
+    async update(userId, id, payload) {
+      financeCalls.push(['transaction-update', userId, id, payload])
+      return { id, ...payload }
+    },
+    async remove(userId, id) {
+      financeCalls.push(['transaction-remove', userId, id])
+    },
+  },
+})
+
 describe('backend foundation', () => {
   it('returns a liveness response without requiring MongoDB', async () => {
     const response = await request(app).get('/api/health')
@@ -136,6 +189,66 @@ describe('backend foundation', () => {
 
     expect(response.status).toBe(401)
     expect(response.body.error.code).toBe('UNAUTHENTICATED')
+  })
+})
+
+describe('categories and transactions routes', () => {
+  it('requires authentication for finance resources', async () => {
+    const response = await request(financeApp).get('/api/categories')
+
+    expect(response.status).toBe(401)
+    expect(response.body.error.code).toBe('UNAUTHENTICATED')
+  })
+
+  it('validates transaction amounts before calling the service', async () => {
+    const token = jwt.sign({ sub: 'user-1' }, 'test-secret-that-is-at-least-32-characters', {
+      issuer: 'paisapilot-api',
+      audience: 'paisapilot-web',
+    })
+
+    const response = await request(financeApp)
+      .post('/api/transactions')
+      .set('Cookie', `paisapilot_session=${token}`)
+      .send({
+        type: 'expense',
+        amountPaise: 0,
+        categoryId: '507f1f77bcf86cd799439011',
+        date: '2026-11-15T10:00:00.000Z',
+        paymentMode: 'upi',
+      })
+
+    expect(response.status).toBe(400)
+    expect(response.body.error.code).toBe('VALIDATION_ERROR')
+    expect(financeCalls.some(call => call[0] === 'transaction-create')).toBe(false)
+  })
+
+  it('passes the authenticated user to category and transaction services', async () => {
+    const token = jwt.sign({ sub: 'user-1' }, 'test-secret-that-is-at-least-32-characters', {
+      issuer: 'paisapilot-api',
+      audience: 'paisapilot-web',
+    })
+
+    const categoryResponse = await request(financeApp)
+      .post('/api/categories')
+      .set('Cookie', `paisapilot_session=${token}`)
+      .send({ name: 'Food', icon: 'utensils', color: '#123456' })
+
+    const transactionResponse = await request(financeApp)
+      .get('/api/transactions?page=2&limit=10&type=expense')
+      .set('Cookie', `paisapilot_session=${token}`)
+
+    expect(categoryResponse.status).toBe(201)
+    expect(transactionResponse.status).toBe(200)
+    expect(financeCalls).toContainEqual(['category-create', 'user-1', {
+      name: 'Food',
+      icon: 'utensils',
+      color: '#123456',
+    }])
+    expect(financeCalls).toContainEqual(['transaction-list', 'user-1', {
+      page: 2,
+      limit: 10,
+      type: 'expense',
+    }])
   })
 })
 
