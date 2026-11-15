@@ -124,7 +124,7 @@ export default function Transactions() {
         <div>
           <p className="text-label-sm uppercase tracking-wider text-primary">Ledger</p>
           <h1 className="headline-lg text-on-surface font-semibold">Transactions</h1>
-          <p className="body-md text-secondary">Search and organize every inflow and outflow in your demo ledger.</p>
+          <p className="body-md text-secondary">Search and organize every inflow and outflow in your ledger.</p>
         </div>
         <Button onClick={() => setShowAddModal(true)}><Plus size={17} /> Add transaction</Button>
       </div>

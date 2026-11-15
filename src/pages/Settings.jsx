@@ -17,7 +17,7 @@ export default function Settings() {
   }
   return (
     <div className="space-y-6">
-      <div><p className="text-label-sm uppercase tracking-wider text-primary">Workspace</p><h1 className="headline-lg text-on-surface font-semibold">Settings</h1><p className="body-md text-secondary">Manage preferences for your PaisaPilot demo workspace.</p></div>
+      <div><p className="text-label-sm uppercase tracking-wider text-primary">Workspace</p><h1 className="headline-lg text-on-surface font-semibold">Settings</h1><p className="body-md text-secondary">Manage your PaisaPilot account preferences.</p></div>
       <Card className="max-w-2xl"><h2 className="headline-md text-on-surface font-semibold">Preferences</h2>
 
         <div className="space-y-4">

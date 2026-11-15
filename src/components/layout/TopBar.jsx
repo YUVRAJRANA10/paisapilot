@@ -1,9 +1,8 @@
 import { useState } from 'react'
 import { Search } from 'lucide-react'
 import { cn } from '../../utils/cn'
-import { DEMO_USER } from '../../utils/constants'
 
-export function TopBar({ user = DEMO_USER }) {
+export function TopBar({ user }) {
   const [userMenuOpen, setUserMenuOpen] = useState(false)
   const [period, setPeriod] = useState('Current Month')
 
@@ -50,10 +49,10 @@ export function TopBar({ user = DEMO_USER }) {
 
         <div className="flex items-center gap-3">
           <div className="hidden md:flex flex-col items-end gap-1">
-            <div className="text-sm font-medium text-on-surface">PaisaPilot Demo</div>
+            <div className="text-sm font-medium text-on-surface">PaisaPilot</div>
             <div className="text-xs text-secondary flex items-center gap-1">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              Demo data
+              Connected
             </div>
           </div>
 

@@ -18,6 +18,7 @@ as the code. It supplements `PLAN.md` (product requirements) and
 | Phase 5 | Categories and transaction persistence APIs | Implemented; live DB verification remains |
 | Phase 6 | Reports, budgets, aggregation, and timezone correctness | Implemented |
 | Phase 7 | Authenticated frontend integration and personalized onboarding | Implemented; E2E hardening remains |
+| Phase 7.1 | Real-user shell cleanup and sidebar consistency | Implemented |
 | Phase 8 | Recurring jobs, alerts, exports, and deployment | Planned |
 
 The application is not yet a complete production finance product. Registration,
@@ -98,6 +99,9 @@ is required for Supertest-based tests.
   conversion.
 - `src/services/realAdapter.js`: page-facing adapter for authenticated API
   operations.
+- `src/components/layout/PageLayout.jsx`, `Sidebar.jsx`, and `TopBar.jsx`:
+  use the authenticated user rather than demo identity data; sidebar collapse
+  and expand controls use directionally correct icons and real logout.
 - `src/utils/validation.js`: Zod schemas for current frontend validation.
 - `src/components/forms/TransactionForm.jsx`: controlled add/edit form with
   amount/date/category/payment validation.

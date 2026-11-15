@@ -2,6 +2,28 @@
 
 Last reviewed: 2026-11-15
 
+## Phase 7.1 real-user shell cleanup milestone
+
+The first real account test showed that financial data was correctly isolated,
+but shared layout labels still said “Demo” and the sidebar still displayed the
+legacy demo identity.
+
+### Implemented
+
+- Sidebar and top bar now display the authenticated user's name and email.
+- Removed stale “PaisaPilot Demo”, “Demo data”, and “demo ledger” wording from
+  the authenticated application shell.
+- Sidebar collapse/expand now uses the correct directional control:
+  hamburger/menu when open and a right-pointing chevron when collapsed.
+- Sidebar sign-out now calls the real cookie-session logout flow.
+- Confirmed onboarding-created budgets are real backend budgets, not seeded demo
+  budgets.
+
+### Verification
+
+- `npm run build`: passed; existing Vite chunk-size warning remains non-blocking.
+- `git diff --check`: passed.
+
 ## Phase 7 authenticated frontend integration milestone
 
 The frontend now uses the authenticated backend for the core product flow
