@@ -3,13 +3,13 @@ import { ArrowDownRight, ArrowUpRight, BarChart3, PieChart as PieChartIcon } fro
 import { Card } from '../components/ui/Card'
 import { DonutChart } from '../components/charts/DonutChart'
 import { BarChart } from '../components/charts/BarChart'
-import { demoAdapter } from '../services/demoAdapter'
-import { DEMO_CURRENT_MONTH } from '../services/demoData'
+import { realAdapter } from '../services/realAdapter'
+const CURRENT_MONTH = new Date().toISOString().slice(0, 7)
 import { formatINR } from '../utils/format'
 
 export default function Analytics() {
   const [report, setReport] = useState(null)
-  useEffect(() => { demoAdapter.getDashboardReport({ month: DEMO_CURRENT_MONTH }).then(setReport) }, [])
+  useEffect(() => { realAdapter.getDashboardReport({ month: CURRENT_MONTH }).then(setReport) }, [])
   if (!report) return <div className="p-12 text-center text-secondary">Loading analytics…</div>
   const { income, expense, savingsRate, categorySpending, monthlyTrend } = report
   return (

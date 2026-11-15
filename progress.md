@@ -2,6 +2,37 @@
 
 Last reviewed: 2026-11-15
 
+## Phase 7 authenticated frontend integration milestone
+
+The frontend now uses the authenticated backend for the core product flow
+instead of the in-memory demo adapter.
+
+### Implemented
+
+- Replaced the malformed Axios/local-token scaffold with a native `fetch`
+  client using HttpOnly-cookie credentials and structured API errors.
+- Connected login, registration, logout, session restoration, categories,
+  transactions, reports, budgets, and preferences to backend routes.
+- Added monthly income to registration and persisted it on the user.
+- Added protected routing and a personalized onboarding page for initial
+  categories and current-month budgets.
+- Normalized integer-paise API values into the existing UI contracts.
+- Converted transaction form dates to ISO timestamps and payment labels to
+  backend enum values.
+- Removed the visible demo-mode banner from the real dashboard flow.
+- Mapped report category names and monthly income/expense fields for charts.
+
+### Verification
+
+- `npm run test:backend`: passed — 16 tests.
+- `npm run build`: passed; existing Vite chunk-size warning remains non-blocking.
+- `git diff --check`: passed.
+- The full browser registration-to-onboarding flow still needs an E2E test
+  against a running frontend and local MongoDB.
+
+The next milestone is recurring transactions/exports or security hardening,
+with end-to-end coverage added before deployment.
+
 ## Phase 6 report aggregation milestone
 
 The first report APIs are implemented using user-scoped MongoDB aggregation

@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react'
-import { demoAdapter } from '../services/demoAdapter'
+import { realAdapter } from '../services/realAdapter'
 
 const AuthContext = createContext(null)
 
@@ -12,10 +12,10 @@ export function AuthProvider({ children }) {
     let mounted = true
     const checkAuth = async () => {
       try {
-        const { user: currentUser } = await demoAdapter.authMe()
+        const { user: currentUser } = await realAdapter.authMe()
         if (mounted) setUser(currentUser)
       } catch (err) {
-        // Not authenticated — that's OK for demo
+        if (mounted && err.status !== 401) setError(err.message)
       } finally {
         if (mounted) setLoading(false)
       }
@@ -28,8 +28,7 @@ export function AuthProvider({ children }) {
     setLoading(true)
     setError(null)
     try {
-      const { user: currentUser, accessToken } = await demoAdapter.authLogin({ email, password })
-      localStorage.setItem('paisapilot_token', accessToken)
+      const { user: currentUser } = await realAdapter.authLogin({ email, password })
       setUser(currentUser)
       return { success: true }
     } catch (err) {
@@ -44,8 +43,8 @@ export function AuthProvider({ children }) {
     setLoading(true)
     setError(null)
     try {
-      const { user: currentUser, accessToken } = await demoAdapter.authRegister(payload)
-      localStorage.setItem('paisapilot_token', accessToken)
+      const { confirmPassword, monthlyIncome, ...registration } = payload
+      const { user: currentUser } = await realAdapter.authRegister(registration)
       setUser(currentUser)
       return { success: true }
     } catch (err) {
@@ -58,11 +57,10 @@ export function AuthProvider({ children }) {
 
   const logout = useCallback(async () => {
     try {
-      await demoAdapter.authLogout()
+      await realAdapter.authLogout()
     } catch (err) {
       // Ignore errors during logout
     }
-    localStorage.removeItem('paisapilot_token')
     setUser(null)
   }, [])
 

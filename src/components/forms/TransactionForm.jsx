@@ -5,18 +5,17 @@ import { Button } from '../ui/Button'
 import { Input } from '../ui/Input'
 import { Select } from '../ui/Select'
 import { cn } from '../../utils/cn'
-import { DEMO_CURRENT_MONTH } from '../../services/demoData'
-import { TRANSACTION_TYPES, PAYMENT_MODES, CATEGORIES_DEMO, RECURRENCE_FREQUENCIES } from '../../utils/constants'
+import { TRANSACTION_TYPES, RECURRENCE_FREQUENCIES } from '../../utils/constants'
 import { parseINRString } from '../../utils/format'
 import { transactionSchema } from '../../utils/validation'
 
-export function TransactionForm({ isOpen, onClose, onSave, transaction = null }) {
+export function TransactionForm({ isOpen, onClose, onSave, transaction = null, categories = [] }) {
   const [form, setForm] = useState({
     type: 'expense',
     amount: '',
     categoryId: '',
-    date: `${DEMO_CURRENT_MONTH}-27T12:00`,
-    paymentMode: 'UPI',
+    date: `${new Date().toISOString().slice(0, 10)}T12:00`,
+    paymentMode: 'upi',
     note: '',
     isRecurring: false,
     recurrence: {
@@ -32,8 +31,8 @@ export function TransactionForm({ isOpen, onClose, onSave, transaction = null })
       type: transaction?.type || 'expense',
       amount: transaction ? String(transaction.amount / 100) : '',
       categoryId: transaction?.categoryId || '',
-      date: transaction?.date ? transaction.date.slice(0, 16) : `${DEMO_CURRENT_MONTH}-27T12:00`,
-      paymentMode: transaction?.paymentMode || 'UPI',
+      date: transaction?.date ? transaction.date.slice(0, 16) : `${new Date().toISOString().slice(0, 10)}T12:00`,
+      paymentMode: transaction?.paymentMode || 'upi',
       note: transaction?.note || '',
       isRecurring: transaction?.isRecurring || false,
       recurrence: transaction?.recurrence || { frequency: 'monthly', interval: 1 },
@@ -121,9 +120,7 @@ export function TransactionForm({ isOpen, onClose, onSave, transaction = null })
 
         <Select
           label="Category"
-          options={CATEGORIES_DEMO
-            .filter(c => c.budgetLimit > 0 || form.type === 'income')
-            .map(c => ({ value: c.id, label: c.name }))}
+          options={categories.map(c => ({ value: c.id, label: c.name }))}
           value={form.categoryId}
           onChange={v => setForm(prev => ({ ...prev, categoryId: v }))}
           placeholder="Select category"
@@ -141,7 +138,13 @@ export function TransactionForm({ isOpen, onClose, onSave, transaction = null })
 
           <Select
             label="Payment Mode"
-            options={PAYMENT_MODES.map(m => ({ value: m, label: m }))}
+            options={[
+              { value: 'upi', label: 'UPI' },
+              { value: 'card', label: 'Card' },
+              { value: 'bank_transfer', label: 'Bank transfer' },
+              { value: 'cash', label: 'Cash' },
+              { value: 'other', label: 'Other' },
+            ]}
             value={form.paymentMode}
             onChange={v => setForm(prev => ({ ...prev, paymentMode: v }))}
             error={errors.paymentMode}

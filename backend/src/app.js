@@ -13,6 +13,7 @@ import { createReportService } from './services/reportService.js'
 import { createReportsRouter } from './routes/reports.js'
 import { createBudgetService } from './services/budgetService.js'
 import { createBudgetsRouter } from './routes/budgets.js'
+import { createPreferencesRouter } from './routes/preferences.js'
 
 const defaultAuthConfig = {
   COOKIE_NAME: 'paisapilot_session',
@@ -70,6 +71,10 @@ export function createApp({
     authService: resolvedAuthService,
     authConfig,
     budgetService: budgetService || createBudgetService(),
+  }))
+  app.use('/api', createPreferencesRouter({
+    authService: resolvedAuthService,
+    authConfig,
   }))
   app.use(notFoundHandler)
   app.use(errorHandler)

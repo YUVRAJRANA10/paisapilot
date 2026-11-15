@@ -2,15 +2,15 @@ import { useEffect, useState } from 'react'
 import { AlertTriangle, CheckCircle2, Target } from 'lucide-react'
 import { Badge } from '../components/ui/Badge'
 import { Card } from '../components/ui/Card'
-import { demoAdapter } from '../services/demoAdapter'
-import { DEMO_CURRENT_MONTH } from '../services/demoData'
+import { realAdapter } from '../services/realAdapter'
+const CURRENT_MONTH = new Date().toISOString().slice(0, 7)
 import { calculatePercentage, formatINR } from '../utils/format'
 
 export default function Budgets() {
   const [budgets, setBudgets] = useState([])
 
   useEffect(() => {
-    demoAdapter.getBudgets({ month: DEMO_CURRENT_MONTH }).then(result => setBudgets(result.budgets))
+    realAdapter.getBudgets({ month: CURRENT_MONTH }).then(result => setBudgets(result.budgets))
   }, [])
 
   const totalLimit = budgets.reduce((sum, budget) => sum + budget.limit, 0)

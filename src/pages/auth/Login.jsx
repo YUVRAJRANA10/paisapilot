@@ -5,6 +5,7 @@ import { Button } from '../../components/ui/Button'
 import { Input } from '../../components/ui/Input'
 import { Card } from '../../components/ui/Card'
 import { useDemoMode } from '../../context/DemoContext'
+import { useAuth } from '../../context/AuthContext'
 
 export default function Login() {
   const [email, setEmail] = useState('')
@@ -13,15 +14,15 @@ export default function Login() {
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
   const { demoMode, resetDemoData } = useDemoMode()
+  const { login } = useAuth()
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError(null)
     setLoading(true)
     try {
-      // Simulate auth delay
-      await new Promise(r => setTimeout(r, 800))
-      // Demo: accept any credentials
+      const result = await login(email, password)
+      if (!result.success) throw new Error(result.error || 'Login failed')
       navigate('/dashboard')
     } catch (err) {
       setError(err.message || 'Login failed')

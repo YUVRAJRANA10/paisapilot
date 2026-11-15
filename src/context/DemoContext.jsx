@@ -3,10 +3,7 @@ import { createContext, useContext, useState, useCallback } from 'react'
 const DemoContext = createContext(null)
 
 export function DemoProvider({ children }) {
-  const [demoMode, setDemoMode] = useState(
-    localStorage.getItem('paisapilot_demo_mode') !== 'false' &&
-    import.meta.env.VITE_DEMO_MODE !== 'false'
-  )
+  const [demoMode, setDemoMode] = useState(false)
 
   const toggleDemoMode = useCallback(() => {
     setDemoMode(prev => {

@@ -6,6 +6,7 @@ export const registerSchema = z.object({
   password: z.string().min(8).max(128),
   currency: z.string().trim().length(3).regex(/^[A-Za-z]{3}$/).default('INR'),
   timezone: z.string().trim().min(1).default('Asia/Kolkata'),
+  monthlyIncomePaise: z.number().int().nonnegative().safe().default(0),
 }).strict()
 
 export const loginSchema = z.object({

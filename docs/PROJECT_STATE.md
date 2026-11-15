@@ -16,14 +16,14 @@ as the code. It supplements `PLAN.md` (product requirements) and
 | Phase 3 | Express/Mongoose backend foundation and health checks | Complete |
 | Phase 4 | JWT authentication in HttpOnly cookies | Implemented; hardening remains |
 | Phase 5 | Categories and transaction persistence APIs | Implemented; live DB verification remains |
-| Phase 6 | Reports, budgets, aggregation, and timezone correctness | Reports and budgets implemented |
-| Phase 7 | Recurring jobs, alerts, and exports | Planned |
-| Phase 8 | Frontend API adapter integration and deployment | Planned |
+| Phase 6 | Reports, budgets, aggregation, and timezone correctness | Implemented |
+| Phase 7 | Authenticated frontend integration and personalized onboarding | Implemented; E2E hardening remains |
+| Phase 8 | Recurring jobs, alerts, exports, and deployment | Planned |
 
-The application is not yet a complete production finance product. The
-frontend demo is functional and the backend foundation/authentication slices
-exist, but finance persistence, server-side reports, and frontend production
-integration remain.
+The application is not yet a complete production finance product. Registration,
+cookie authentication, onboarding, categories, transactions, reports, budgets,
+and preferences now use the backend. Recurring transactions, exports, security
+hardening, and end-to-end release validation remain.
 
 ## Repository architecture
 
@@ -43,8 +43,9 @@ PaisaPilot/
 ```text
 React pages/components
   -> Context/hooks and UI state
-  -> demoAdapter today
-  -> real Axios API adapter later
+  -> realAdapter
+  -> cookie-based fetch API client
+  -> Express routes/services
 ```
 
 ### Backend layers
@@ -70,20 +71,21 @@ is required for Supertest-based tests.
 
 - `src/main.jsx`: mounts React with `AuthProvider` and `DemoProvider`.
 - `src/App.jsx`: React Router routes for dashboard, transactions, budgets,
-  analytics, settings, login, and register.
+  analytics, settings, login, register, and onboarding.
 - `src/components/layout/PageLayout.jsx`: shared shell and sidebar state.
 - `Sidebar.jsx` and `TopBar.jsx`: shared navigation and header.
 
 ### Current pages and behavior
 
-- `Dashboard.jsx`: balance, income, expenses, savings rate, category spending,
-  budgets, recent transactions, and charts using demo reports.
-- `Transactions.jsx`: search, type/category/date filters, add, edit, delete,
-  confirmation, and refresh using the demo adapter.
-- `Budgets.jsx`: budget summary and utilization using recalculated demo usage.
-- `Analytics.jsx`: demo income/expense/savings metrics and charts.
-- `Settings.jsx`: demo reset and persisted local preferences.
-- `Login.jsx` and `Register.jsx`: currently demo-adapter-based flows.
+- `Dashboard.jsx`: authenticated balance, income, expenses, savings rate,
+  category spending, budgets, recent transactions, and charts.
+- `Transactions.jsx`: authenticated search, filters, pagination, add, edit,
+  delete, and refresh.
+- `Budgets.jsx`: authenticated monthly budget summary and utilization.
+- `Analytics.jsx`: authenticated income/expense/savings metrics and charts.
+- `Settings.jsx`: backend-backed currency and timezone preferences.
+- `Login.jsx`, `Register.jsx`, and `Onboarding.jsx`: cookie-authenticated
+  account creation/login followed by initial categories and budgets.
 
 ### Frontend data and validation
 
@@ -91,14 +93,18 @@ is required for Supertest-based tests.
   paise.
 - `src/services/demoAdapter.jsx`: asynchronous in-memory auth, transaction,
   category, budget, and report behavior.
-- `src/services/api.js`: early real API scaffold, not connected to pages and
-  not yet aligned with the final cookie adapter.
+- `src/services/api.js`: native `fetch` client with `credentials: include`,
+  backend error-envelope handling, paise normalization, and date/payment-mode
+  conversion.
+- `src/services/realAdapter.js`: page-facing adapter for authenticated API
+  operations.
 - `src/utils/validation.js`: Zod schemas for current frontend validation.
 - `src/components/forms/TransactionForm.jsx`: controlled add/edit form with
   amount/date/category/payment validation.
 
-The current frontend does not persist financial data in MongoDB. Demo data is
-not production user data and must never silently mix with API data.
+Production pages no longer use the demo adapter. Financial data is read and
+written through authenticated MongoDB-backed APIs. The legacy demo adapter
+remains available only as unused presentation/test infrastructure.
 
 ## Implemented backend
 
@@ -195,7 +201,6 @@ These are documented contracts, not working routes:
 
 ```text
 GET /api/reports/export
-GET/PATCH /api/user/preferences
 GET/POST/PUT/DELETE /api/recurring
 POST /api/internal/jobs/recurring
 ```
@@ -245,33 +250,36 @@ GET http://localhost:5000/api/ready
 
 ## Verification state
 
-Latest verified budget milestone:
+Latest verified frontend integration milestone:
 
 - Backend tests: 16 passed.
 - Frontend production build: passed.
 - `git diff --check`: passed.
-- Route tests verify authentication and report validation.
+- Route tests verify authentication, finance routing, and report/budget
+  validation.
+- Registration includes monthly income and redirects to personalized
+  category/budget onboarding.
+- Authenticated pages use the real API adapter; JWTs are not stored in browser
+  local storage.
 - Local MongoDB smoke test verified aggregation totals, category grouping,
   monthly trend output, and Asia/Kolkata month boundaries with temporary data
   cleaned up afterward.
 - Local MongoDB budget smoke test verified upsert, expense usage aggregation,
   remaining amount, utilization percentage, and cleanup.
 - Live Atlas connectivity: not verified.
-- Frontend-to-production-API integration: not implemented.
+- Frontend-to-production-API integration: local build-validated; full browser
+  registration/onboarding E2E remains.
 
 ## Next implementation order
 
 ### Phase 5: categories and transactions
 
-1. Connect authentication, categories, transactions, reports, and budgets to
-   the frontend API adapter.
-2. Add CSV export and recurring transaction processing.
-3. Add CSRF protection and login rate limiting before production deployment.
+1. Add CSV export and recurring transaction processing.
+2. Add CSRF protection and login rate limiting before production deployment.
 
 ### Phase 6: reports and budgets
 
-1. Connect report and budget data to the frontend pages.
-2. Add tests for zero-income savings rate and budget overages.
+1. Add tests for zero-income savings rate and budget overages.
 
 ### Phase 7: automation and exports
 
@@ -282,12 +290,10 @@ Latest verified budget milestone:
 
 ### Phase 8: integration and release
 
-1. Replace page-level demo calls with a shared service/data-adapter factory.
-2. Add Axios `withCredentials` API adapter.
-3. Ensure demo and real modes cannot mix.
-4. Add frontend/backend integration tests.
-5. Add CSRF/rate-limit/JWT hardening.
-6. Deploy frontend, backend, MongoDB Atlas, and scheduled jobs.
+1. Add frontend/backend integration and browser flow tests.
+2. Add CSRF/rate-limit/JWT hardening.
+3. Persist onboarding completion and make setup idempotent.
+4. Deploy frontend, backend, MongoDB Atlas, and scheduled jobs.
 
 ## Milestone workflow
 

@@ -8,11 +8,12 @@ import Settings from './pages/Settings'
 import Login from './pages/auth/Login'
 import Register from './pages/auth/Register'
 import { ProtectedRoute } from './routes/ProtectedRoute'
+import Onboarding from './pages/Onboarding'
 
 const router = createBrowserRouter([
   {
     path: '/',
-    element: <PageLayout />,
+    element: <ProtectedRoute><PageLayout /></ProtectedRoute>,
     children: [
       { index: true, element: <Dashboard /> },
       { path: 'dashboard', element: <Dashboard /> },
@@ -22,6 +23,7 @@ const router = createBrowserRouter([
       { path: 'settings', element: <Settings /> },
     ],
   },
+  { path: '/onboarding', element: <ProtectedRoute><Onboarding /></ProtectedRoute> },
   { path: '/login', element: <Login /> },
   { path: '/register', element: <Register /> },
 ])

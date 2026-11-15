@@ -5,6 +5,7 @@ import { Button } from '../../components/ui/Button'
 import { Input } from '../../components/ui/Input'
 import { Select } from '../../components/ui/Select'
 import { Card } from '../../components/ui/Card'
+import { useAuth } from '../../context/AuthContext'
 
 export default function Register() {
   const [form, setForm] = useState({
@@ -14,10 +15,12 @@ export default function Register() {
     confirmPassword: '',
     timezone: 'Asia/Kolkata',
     currency: 'INR',
+    monthlyIncome: '',
   })
   const [error, setError] = useState(null)
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
+  const { register } = useAuth()
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -28,8 +31,12 @@ export default function Register() {
     }
     setLoading(true)
     try {
-      await new Promise(r => setTimeout(r, 800))
-      navigate('/dashboard')
+      const result = await register({
+        ...form,
+        monthlyIncomePaise: Math.round(Number(form.monthlyIncome || 0) * 100),
+      })
+      if (!result.success) throw new Error(result.error || 'Registration failed')
+      navigate('/onboarding')
     } catch (err) {
       setError(err.message || 'Registration failed')
     } finally {
@@ -104,6 +111,16 @@ export default function Register() {
               value={form.timezone}
               onChange={v => setForm(prev => ({ ...prev, timezone: v }))}
               placeholder="Select timezone"
+            />
+            <Input
+              label="Monthly income"
+              type="number"
+              min="0"
+              step="0.01"
+              value={form.monthlyIncome}
+              onChange={e => setForm(prev => ({ ...prev, monthlyIncome: e.target.value }))}
+              placeholder="85000"
+              required
             />
             <Select
               label="Currency"

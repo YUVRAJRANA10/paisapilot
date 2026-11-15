@@ -1,17 +1,17 @@
 import { useState } from 'react'
-import { Check, RotateCcw } from 'lucide-react'
+import { Check } from 'lucide-react'
 import { Button } from '../components/ui/Button'
 import { Card } from '../components/ui/Card'
-import { useDemoMode } from '../context/DemoContext'
+import { useAuth } from '../context/AuthContext'
+import { api } from '../services/api'
 
 export default function Settings() {
-  const { resetDemoData, demoMode, toggleDemoMode } = useDemoMode()
+  const { user } = useAuth()
   const [saved, setSaved] = useState(false)
-  const [currency, setCurrency] = useState(() => localStorage.getItem('paisapilot_currency') || 'INR')
-  const [timezone, setTimezone] = useState(() => localStorage.getItem('paisapilot_timezone') || 'Asia/Kolkata')
-  const save = () => {
-    localStorage.setItem('paisapilot_currency', currency)
-    localStorage.setItem('paisapilot_timezone', timezone)
+  const [currency, setCurrency] = useState(user?.currency || 'INR')
+  const [timezone, setTimezone] = useState(user?.timezone || 'Asia/Kolkata')
+  const save = async () => {
+    await api.updatePreferences({ currency, timezone })
     setSaved(true)
     setTimeout(() => setSaved(false), 1800)
   }
@@ -21,14 +21,6 @@ export default function Settings() {
       <Card className="max-w-2xl"><h2 className="headline-md text-on-surface font-semibold">Preferences</h2>
 
         <div className="space-y-4">
-          <div className="flex items-center justify-between p-4 bg-surface-container-low rounded-lg border border-outline/30">
-            <div>
-              <p className="text-label-sm text-label-sm text-on-surface font-medium">Demo Mode</p>
-              <p className="text-xs text-on-surface-variant">Using demonstration data. Reset to start fresh.</p>
-            </div>
-            <Button variant="secondary" onClick={resetDemoData}><RotateCcw size={15} /> Reset</Button>
-          </div>
-
           <div className="flex items-center justify-between p-4 bg-surface-container-low rounded-lg border border-outline/30">
             <div>
               <p className="text-label-sm text-label-sm text-on-surface font-medium">Currency</p>
@@ -48,10 +40,6 @@ export default function Settings() {
             <select value={timezone} onChange={event => setTimezone(event.target.value)} className="bg-transparent border-none text-on-surface text-sm font-medium focus:outline-none" aria-label="Timezone">
               <option>Asia/Kolkata</option>
             </select>
-          </div>
-          <div className="mt-5 flex items-center justify-between border-t border-outline/30 pt-5">
-            <div><p className="font-medium">Demo mode</p><p className="text-xs text-secondary">Use local demonstration records while presenting.</p></div>
-            <button type="button" onClick={toggleDemoMode} aria-pressed={demoMode} className={`h-6 w-11 rounded-full p-1 transition-colors ${demoMode ? 'bg-primary' : 'bg-outline-variant'}`}><span className={`block h-4 w-4 rounded-full bg-white transition-transform ${demoMode ? 'translate-x-5' : ''}`} /></button>
           </div>
           <div className="mt-6 flex justify-end"><Button onClick={save}>{saved ? <><Check size={15} /> Saved</> : 'Save preferences'}</Button></div>
         </div>

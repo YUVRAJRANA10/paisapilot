@@ -10,10 +10,11 @@ import { DonutChart } from '../components/charts/DonutChart'
 import { BarChart } from '../components/charts/BarChart'
 import { Sparkline } from '../components/charts/Sparkline'
 import { TransactionForm } from '../components/forms/TransactionForm'
-import { demoAdapter } from '../services/demoAdapter'
+import { realAdapter } from '../services/realAdapter'
 import { formatINR, formatDate, formatShortDate, getMonthsArray, calculateSavingsRate, calculatePercentage } from '../utils/format'
 import { cn } from '../utils/cn'
-import { DEMO_CURRENT_MONTH } from '../services/demoData'
+import { useAuth } from '../context/AuthContext'
+const CURRENT_MONTH = new Date().toISOString().slice(0, 7)
 
 export default function Dashboard() {
   const [summary, setSummary] = useState(null)
@@ -22,14 +23,16 @@ export default function Dashboard() {
   const [recentTransactions, setRecentTransactions] = useState([])
   const [budgets, setBudgets] = useState([])
   const [insights, setInsights] = useState([])
-  const [selectedMonth, setSelectedMonth] = useState(DEMO_CURRENT_MONTH)
+  const [selectedMonth, setSelectedMonth] = useState(CURRENT_MONTH)
   const [showAddModal, setShowAddModal] = useState(false)
+  const [categories, setCategories] = useState([])
+  const { user } = useAuth()
 
   const loadData = useCallback(async () => {
     try {
       const [reportResult, budgetResult] = await Promise.all([
-        demoAdapter.getDashboardReport({ month: selectedMonth }),
-        demoAdapter.getBudgets({ month: selectedMonth }),
+        realAdapter.getDashboardReport({ month: selectedMonth }),
+        realAdapter.getBudgets({ month: selectedMonth }),
       ])
 
       setSummary(reportResult)
@@ -37,11 +40,16 @@ export default function Dashboard() {
       setMonthlyTrend(reportResult.monthlyTrend)
       setBudgets(budgetResult.budgets)
 
-      const txnResult = await demoAdapter.getTransactions({ limit: 6, month: selectedMonth })
+      const [year, month] = selectedMonth.split('-').map(Number)
+      const lastDay = new Date(Date.UTC(year, month, 0, 23, 59, 59, 999)).toISOString()
+      const txnResult = await realAdapter.getTransactions({
+        limit: 6,
+        from: `${selectedMonth}-01T00:00:00.000Z`,
+        to: lastDay,
+      })
       setRecentTransactions(txnResult.transactions)
 
-      const { DEMO_INSIGHTS } = await import('../services/demoData')
-      setInsights(DEMO_INSIGHTS)
+      setInsights([])
     } catch (err) {
       console.error('Failed to load dashboard data:', err)
     }
@@ -50,6 +58,9 @@ export default function Dashboard() {
   useEffect(() => {
     loadData()
   }, [loadData])
+  useEffect(() => {
+    realAdapter.getCategories().then(result => setCategories(result.categories))
+  }, [])
 
   const handleAddTransaction = (transaction) => {
     setRecentTransactions(prev => [transaction, ...prev].slice(0, 6))
@@ -78,17 +89,10 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-6">
-      <div className="bg-primary/5 border border-primary/20 rounded-lg p-4 flex items-center gap-3">
-        <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-        <span className="text-sm text-primary font-medium">
-          Demo Mode — Using demonstration data. No real bank accounts or UPI services are connected.
-        </span>
-      </div>
-
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div className="flex flex-col gap-1">
           <h1 className="headline-lg text-headline-lg text-on-surface font-semibold tracking-tight">
-            Welcome back, Yuvraj
+            Welcome back, {user?.name || 'there'}
           </h1>
           <p className="body-md text-body-md text-secondary">
             Your money, under control. Here's your financial flightpath for{' '}
@@ -101,7 +105,7 @@ export default function Dashboard() {
         <div className="flex items-center gap-2 flex-wrap">
           <div className="inline-flex p-1 rounded-xl bg-surface-container-high" role="group">
             <button
-              onClick={() => setSelectedMonth(DEMO_CURRENT_MONTH)}
+              onClick={() => setSelectedMonth(CURRENT_MONTH)}
               className="px-3.5 py-1.5 rounded-lg text-label-md font-label-md bg-surface-container-lowest text-on-surface shadow-sm transition-colors"
             >
               {new Date(selectedMonth + '-01').toLocaleDateString('en-IN', { month: 'long', year: 'numeric' })}
@@ -383,6 +387,7 @@ export default function Dashboard() {
         isOpen={showAddModal}
         onClose={() => setShowAddModal(false)}
         onSave={handleAddTransaction}
+        categories={categories}
       />
     </div>
   )
