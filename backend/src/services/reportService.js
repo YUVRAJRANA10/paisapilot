@@ -1,0 +1,96 @@
+import { Transaction } from '../models/Transaction.js'
+import { monthDateRange, yearDateRange } from '../utils/timezone.js'
+import { AppError } from '../middleware/errors.js'
+
+function assertRange(range) {
+  if (!range) throw new AppError(400, 'VALIDATION_ERROR', 'The requested date range is invalid.')
+}
+
+export function createReportService({ transactionModel = Transaction } = {}) {
+  return {
+    async summary(userId, month, timezone) {
+      const range = monthDateRange(month, timezone)
+      assertRange(range)
+      const [result] = await transactionModel.aggregate([
+        { $match: { userId, date: { $gte: range.from, $lt: range.to } } },
+        {
+          $facet: {
+            totals: [
+              { $group: {
+                _id: '$type',
+                totalPaise: { $sum: '$amountPaise' },
+              } },
+            ],
+            count: [{ $count: 'value' }],
+          },
+        },
+      ])
+      const incomePaise = result.totals.find(item => item._id === 'income')?.totalPaise || 0
+      const expensePaise = result.totals.find(item => item._id === 'expense')?.totalPaise || 0
+      return {
+        incomePaise,
+        expensePaise,
+        balancePaise: incomePaise - expensePaise,
+        savingsRate: incomePaise > 0 ? Number((((incomePaise - expensePaise) / incomePaise) * 100).toFixed(2)) : 0,
+        transactionCount: result.count[0]?.value || 0,
+      }
+    },
+
+    async byCategory(userId, from, to) {
+      const start = new Date(from)
+      const end = new Date(to)
+      const [rows] = await Promise.all([
+        transactionModel.aggregate([
+          { $match: { userId, type: 'expense', date: { $gte: start, $lte: end } } },
+          { $group: { _id: '$categoryId', totalPaise: { $sum: '$amountPaise' }, count: { $sum: 1 } } },
+          { $lookup: { from: 'categories', localField: '_id', foreignField: '_id', as: 'category' } },
+          { $unwind: { path: '$category', preserveNullAndEmptyArrays: true } },
+          { $project: {
+            _id: 0,
+            categoryId: '$_id',
+            categoryName: { $ifNull: ['$category.name', 'Archived category'] },
+            totalPaise: 1,
+            count: 1,
+          } },
+          { $sort: { totalPaise: -1, categoryName: 1 } },
+        ]),
+      ])
+      return rows.map(row => ({ ...row, categoryId: row.categoryId.toString() }))
+    },
+
+    async monthlyTrend(userId, year, timezone) {
+      const range = yearDateRange(year, timezone)
+      assertRange(range)
+      const rows = await transactionModel.aggregate([
+        { $match: { userId, date: { $gte: range.from, $lt: range.to } } },
+        { $group: {
+          _id: {
+            month: { $dateToString: { format: '%Y-%m', date: '$date', timezone } },
+            type: '$type',
+          },
+          totalPaise: { $sum: '$amountPaise' },
+        } },
+        { $sort: { '_id.month': 1 } },
+        { $group: {
+          _id: '$_id.month',
+          values: { $push: { type: '$_id.type', totalPaise: '$totalPaise' } },
+        } },
+        { $project: {
+          _id: 0,
+          month: '$_id',
+          values: 1,
+        } },
+        { $sort: { month: 1 } },
+      ])
+      return rows.map(row => {
+        const values = Object.fromEntries(row.values.map(value => [value.type, value.totalPaise]))
+        return {
+          month: row.month,
+          incomePaise: values.income || 0,
+          expensePaise: values.expense || 0,
+          balancePaise: (values.income || 0) - (values.expense || 0),
+        }
+      })
+    },
+  }
+}

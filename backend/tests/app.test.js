@@ -86,6 +86,20 @@ const financeApp = createApp({
       financeCalls.push(['transaction-remove', userId, id])
     },
   },
+  reportService: {
+    async summary(userId, month, timezone) {
+      financeCalls.push(['report-summary', userId, month, timezone])
+      return { incomePaise: 1000, expensePaise: 250, balancePaise: 750, savingsRate: 75, transactionCount: 2 }
+    },
+    async byCategory(userId, from, to) {
+      financeCalls.push(['report-category', userId, from, to])
+      return []
+    },
+    async monthlyTrend(userId, year, timezone) {
+      financeCalls.push(['report-trend', userId, year, timezone])
+      return []
+    },
+  },
 })
 
 describe('backend foundation', () => {
@@ -249,6 +263,42 @@ describe('categories and transactions routes', () => {
       limit: 10,
       type: 'expense',
     }])
+  })
+
+  it('protects reports and validates report query parameters', async () => {
+    const unauthenticated = await request(financeApp).get('/api/reports/summary?month=2026-11')
+    expect(unauthenticated.status).toBe(401)
+
+    const token = jwt.sign({ sub: 'user-1' }, 'test-secret-that-is-at-least-32-characters', {
+      issuer: 'paisapilot-api',
+      audience: 'paisapilot-web',
+    })
+    const invalid = await request(financeApp)
+      .get('/api/reports/summary?month=November')
+      .set('Cookie', `paisapilot_session=${token}`)
+
+    expect(invalid.status).toBe(400)
+    expect(invalid.body.error.code).toBe('VALIDATION_ERROR')
+  })
+
+  it('passes authenticated report requests to the report service', async () => {
+    const token = jwt.sign({ sub: 'user-1' }, 'test-secret-that-is-at-least-32-characters', {
+      issuer: 'paisapilot-api',
+      audience: 'paisapilot-web',
+    })
+    const response = await request(financeApp)
+      .get('/api/reports/summary?month=2026-11')
+      .set('Cookie', `paisapilot_session=${token}`)
+
+    expect(response.status).toBe(200)
+    expect(response.body.summary).toEqual({
+      incomePaise: 1000,
+      expensePaise: 250,
+      balancePaise: 750,
+      savingsRate: 75,
+      transactionCount: 2,
+    })
+    expect(financeCalls).toContainEqual(['report-summary', 'user-1', '2026-11', undefined])
   })
 })
 

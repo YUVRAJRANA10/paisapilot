@@ -16,7 +16,7 @@ as the code. It supplements `PLAN.md` (product requirements) and
 | Phase 3 | Express/Mongoose backend foundation and health checks | Complete |
 | Phase 4 | JWT authentication in HttpOnly cookies | Implemented; hardening remains |
 | Phase 5 | Categories and transaction persistence APIs | Implemented; live DB verification remains |
-| Phase 6 | Reports, budgets, aggregation, and timezone correctness | Planned |
+| Phase 6 | Reports, budgets, aggregation, and timezone correctness | Reports implemented; budgets next |
 | Phase 7 | Recurring jobs, alerts, and exports | Planned |
 | Phase 8 | Frontend API adapter integration and deployment | Planned |
 
@@ -142,6 +142,9 @@ characters), and `CRON_SECRET` (at least 16 characters). Production requires
 | POST | `/api/transactions` | Create a user transaction |
 | PUT | `/api/transactions/:id` | Update a user transaction |
 | DELETE | `/api/transactions/:id` | Delete a user transaction |
+| GET | `/api/reports/summary` | Return monthly income, expense, balance, savings rate, and count |
+| GET | `/api/reports/by-category` | Return user-scoped expense totals by category |
+| GET | `/api/reports/monthly-trend` | Return timezone-aware monthly income and expense totals |
 
 ### Authentication files
 
@@ -167,6 +170,11 @@ characters), and `CRON_SECRET` (at least 16 characters). Production requires
   category ownership checks, filtering, and pagination.
 - `backend/src/routes/finance.js`: authenticated category and transaction
   routes.
+- `backend/src/utils/timezone.js`: timezone-aware month and year boundaries.
+- `backend/src/services/reportService.js`: user-scoped MongoDB aggregation
+  for summary, category, and monthly trend reports.
+- `backend/src/validators/reports.js`: strict report period validation.
+- `backend/src/routes/reports.js`: authenticated report endpoints.
 
 Authentication uses a 15-minute signed JWT in an HttpOnly cookie. The browser
 JavaScript cannot read it. Logout clears the cookie, but stateless JWT
@@ -177,9 +185,6 @@ revocation/rotation is still a production-hardening task.
 These are documented contracts, not working routes:
 
 ```text
-GET /api/reports/summary
-GET /api/reports/by-category
-GET /api/reports/monthly-trend
 GET /api/reports/export
 GET/PUT /api/budgets
 GET/PATCH /api/user/preferences
@@ -232,13 +237,15 @@ GET http://localhost:5000/api/ready
 
 ## Verification state
 
-Latest verified categories/transactions milestone:
+Latest verified reports milestone:
 
-- Backend tests: 12 passed.
+- Backend tests: 14 passed.
 - Frontend production build: passed.
 - `git diff --check`: passed.
-- Route tests verify authentication, validation, user scoping, and pagination.
-- Live MongoDB persistence tests: not yet run.
+- Route tests verify authentication and report validation.
+- Local MongoDB smoke test verified aggregation totals, category grouping,
+  monthly trend output, and Asia/Kolkata month boundaries with temporary data
+  cleaned up afterward.
 - Live Atlas connectivity: not verified.
 - Frontend-to-production-API integration: not implemented.
 
@@ -246,9 +253,9 @@ Latest verified categories/transactions milestone:
 
 ### Phase 5: categories and transactions
 
-1. Add live MongoDB integration tests for Category and Transaction services.
-2. Add CSRF protection and login rate limiting before production deployment.
-3. Add monthly reports and budgets using MongoDB aggregation pipelines.
+1. Add the monthly Budget model and budget endpoints.
+2. Connect report and transaction data to the frontend adapter.
+3. Add CSRF protection and login rate limiting before production deployment.
 
 ### Phase 6: reports and budgets
 

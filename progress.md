@@ -2,6 +2,34 @@
 
 Last reviewed: 2026-11-15
 
+## Phase 6 report aggregation milestone
+
+The first report APIs are implemented using user-scoped MongoDB aggregation
+pipelines. The frontend is still demo-adapter-based.
+
+### Implemented
+
+- Timezone-aware month and year boundary calculation using the user's IANA
+  timezone.
+- `GET /api/reports/summary?month=YYYY-MM` with `$match` and `$facet` totals,
+  balance, savings rate, and transaction count.
+- `GET /api/reports/by-category?from&to` with `$group`, `$sum`, `$lookup`,
+  `$project`, and sorting for expense categories.
+- `GET /api/reports/monthly-trend?year=YYYY` with timezone-aware
+  `$dateToString`, grouping, sorting, and chart-ready output.
+- Strict report query validation and authenticated route protection.
+
+### Verification
+
+- `npm run test:backend`: passed — 14 tests.
+- `npm run build`: passed; existing Vite chunk warnings remain non-blocking.
+- `git diff --check`: passed.
+- Local MongoDB smoke test passed with temporary records and cleanup:
+  summary, category grouping, monthly trend, and Asia/Kolkata boundary.
+
+The next milestone is budgets, followed by replacing frontend demo calls with
+the real authenticated API adapter.
+
 ## Phase 5 categories and transaction persistence milestone
 
 Phase 5 backend routes are implemented behind the existing JWT-cookie
