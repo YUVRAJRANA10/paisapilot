@@ -6,9 +6,12 @@ import { DEMO_USER } from '../../utils/constants'
 const SIDEBAR_WIDTH = 'w-64'
 const SIDEBAR_WIDTH_COLLAPSED = 'w-16'
 
+const SIDEBAR_ID = 'app-sidebar'
+
 export function Sidebar({ collapsed, onToggle }) {
   return (
     <aside
+      id={SIDEBAR_ID}
       className={cn(
         'fixed left-0 top-0 h-full border-r border-white/10 z-30 transition-all duration-300',
         collapsed ? SIDEBAR_WIDTH_COLLAPSED : SIDEBAR_WIDTH,
@@ -17,29 +20,37 @@ export function Sidebar({ collapsed, onToggle }) {
     >
       <div className="flex items-center justify-between h-16 px-4 border-b border-white/10">
         <div className={cn('flex items-center gap-3', collapsed && 'justify-center')}>
-          <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-white text-xs font-bold">
+          <div
+            className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-white text-xs font-bold"
+            aria-hidden="true"
+          >
             PP
           </div>
-          {!collapsed && (
+          {collapsed ? (
+            <span className="sr-only">PaisaPilot</span>
+          ) : (
             <span className="headline-lg text-headline-lg font-bold tracking-tight">
               Paisa<span className="text-primary">Pilot</span>
             </span>
           )}
         </div>
         <button
+          type="button"
           onClick={onToggle}
           className="p-2 text-inverse-on-surface hover:bg-white/10 rounded-lg transition-colors"
           aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          aria-expanded={!collapsed}
+          aria-controls={SIDEBAR_ID}
         >
           {collapsed ? (
-            <ChevronLeft size={20} />
+            <ChevronLeft size={20} aria-hidden="true" />
           ) : (
-            <Menu size={20} />
+            <Menu size={20} aria-hidden="true" />
           )}
         </button>
       </div>
 
-      <nav className="flex-1 overflow-y-auto px-2 py-4 space-y-1">
+      <nav aria-label="Main navigation" className="flex-1 overflow-y-auto px-2 py-4 space-y-1">
         {[
           { path: '/', label: 'Dashboard', icon: 'layout-dashboard' },
           { path: '/transactions', label: 'Transactions', icon: 'list-checks' },
@@ -60,8 +71,8 @@ export function Sidebar({ collapsed, onToggle }) {
                 )
               }
             >
-              <span className="w-5 opacity-70"><NavIcon name={item.icon} size={18} /></span>
-              {!collapsed && <span>{item.label}</span>}
+              <span className="w-5 opacity-70" aria-hidden="true"><NavIcon name={item.icon} size={18} /></span>
+              <span className={cn(collapsed && 'sr-only')}>{item.label}</span>
             </NavLink>
           )
         })}
@@ -69,24 +80,28 @@ export function Sidebar({ collapsed, onToggle }) {
 
       <div className="p-4 border-t border-white/10">
         <div className="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-white/5 border border-white/10 mb-4">
-          <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white text-xs">
+          <div
+            className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white text-xs"
+            aria-hidden="true"
+          >
             {DEMO_USER.name.charAt(0)}
           </div>
           <div className="flex-1 min-w-0">
-            <div className={cn('text-sm font-medium text-inverse-on-surface', collapsed && 'hidden')}>
+            <div className={cn('text-sm font-medium text-inverse-on-surface', collapsed && 'sr-only')}>
               {DEMO_USER.name}
             </div>
-            <div className={cn('text-xs text-inverse-on-surface/60', collapsed && 'hidden')}>
+            <div className={cn('text-xs text-inverse-on-surface/60', collapsed && 'sr-only')}>
               {DEMO_USER.email}
             </div>
           </div>
         </div>
         <button
+          type="button"
           onClick={() => {}}
           className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-error hover:bg-error/10 transition-colors"
         >
-          <LogOut size={18} />
-          <span className={cn(collapsed && 'hidden')}>Sign out</span>
+          <LogOut size={18} aria-hidden="true" />
+          <span className={cn(collapsed && 'sr-only')}>Sign out</span>
         </button>
       </div>
     </aside>
@@ -102,5 +117,5 @@ function NavIcon({ name, size }) {
     settings: Settings,
   }
   const Icon = icons[name] || Settings
-  return <Icon size={size} />
+  return <Icon size={size} aria-hidden="true" />
 }
