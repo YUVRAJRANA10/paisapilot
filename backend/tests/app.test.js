@@ -32,6 +32,9 @@ const app = createApp({
     async getUserById(id) {
       return id === 'user-1' ? { id, name: 'Yuvraj', email: 'yuvraj@example.com' } : null
     },
+    async updatePreferences(id, payload) {
+      return { id, name: 'Yuvraj', email: 'yuvraj@example.com', ...payload }
+    },
   },
 })
 
@@ -50,6 +53,9 @@ const financeApp = createApp({
   authService: {
     async getUserById(id) {
       return id === 'user-1' ? { id, name: 'Yuvraj', email: 'yuvraj@example.com' } : null
+    },
+    async updatePreferences(id, payload) {
+      return { id, name: 'Yuvraj', email: 'yuvraj@example.com', ...payload }
     },
   },
   categoryService: {
@@ -221,6 +227,21 @@ describe('backend foundation', () => {
 
     expect(response.status).toBe(401)
     expect(response.body.error.code).toBe('UNAUTHENTICATED')
+  })
+
+  it('persists onboarding completion through preferences', async () => {
+    const token = jwt.sign({ sub: 'user-1' }, 'test-secret-that-is-at-least-32-characters', {
+      issuer: 'paisapilot-api',
+      audience: 'paisapilot-web',
+    })
+
+    const response = await request(app)
+      .patch('/api/user/preferences')
+      .set('Cookie', `paisapilot_session=${token}`)
+      .send({ onboardingCompleted: true })
+
+    expect(response.status).toBe(200)
+    expect(response.body.preferences.onboardingCompleted).toBe(true)
   })
 })
 

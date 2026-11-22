@@ -69,10 +69,16 @@ export const api = {
 
   getTransactions: async params => {
     const query = new URLSearchParams()
-    Object.entries({
-      ...params,
-      categoryId: params?.category || params?.categoryId,
-    }).forEach(([key, value]) => {
+    const categoryId = params?.category || params?.categoryId
+    const allowed = {
+      page: params?.page,
+      limit: params?.limit,
+      type: params?.type,
+      from: params?.from,
+      to: params?.to,
+      categoryId,
+    }
+    Object.entries(allowed).forEach(([key, value]) => {
       if (value !== undefined && value !== '') query.set(key, value)
     })
     const result = await request(`/transactions?${query}`)

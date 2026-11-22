@@ -2,6 +2,36 @@
 
 Last reviewed: 2026-11-15
 
+## Phase 7.2 onboarding persistence milestone
+
+Onboarding now persists as account state instead of only being a one-time
+registration redirect.
+
+### Implemented
+
+- Added `onboardingCompleted` to the user model and public authentication user.
+- Added preferences support for persisting onboarding completion.
+- Added setup guards:
+  - incomplete authenticated users are redirected to onboarding;
+  - completed users cannot accidentally reopen onboarding;
+  - unauthenticated users are redirected to login.
+- Made onboarding category creation idempotent by reusing existing category
+  names instead of creating duplicates.
+- Added skip/setup completion handling that updates the authenticated user
+  state immediately.
+- Fixed transaction list date filters to convert local date values to ISO
+  timestamps accepted by the backend.
+- Removed unsupported frontend-only `category` query keys from the API client.
+- Replaced stale “October” labels in Budgets and Analytics with the current
+  month label.
+- Added backend coverage for onboarding preference persistence.
+
+### Verification
+
+- `npm run build`: passed; existing Vite chunk-size warning remains non-blocking.
+- `npm run test:backend`: passed — 17 tests.
+- `git diff --check`: passed.
+
 ## Phase 7.1 real-user shell cleanup milestone
 
 The first real account test showed that financial data was correctly isolated,

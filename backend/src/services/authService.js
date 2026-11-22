@@ -10,6 +10,7 @@ function publicUser(user) {
     currency: user.currency,
     monthlyIncomePaise: user.monthlyIncomePaise,
     timezone: user.timezone,
+    onboardingCompleted: user.onboardingCompleted ?? false,
   }
 }
 
@@ -43,6 +44,7 @@ export function createAuthService({ userModel = User, jwtSecret, tokenTtl = '15m
         currency: payload.currency.toUpperCase(),
         timezone: payload.timezone,
         monthlyIncomePaise: payload.monthlyIncomePaise,
+        onboardingCompleted: false,
       })
       return { user: publicUser(user), token: createToken(user) }
     },

@@ -18,11 +18,25 @@ export default function Onboarding() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const navigate = useNavigate()
-  const { user } = useAuth()
+  const { user, setUser } = useAuth()
   const month = new Date().toISOString().slice(0, 7)
 
   const update = (index, field, value) => {
     setCategories(items => items.map((item, itemIndex) => itemIndex === index ? { ...item, [field]: value } : item))
+  }
+
+  const skip = async () => {
+    setLoading(true)
+    setError('')
+    try {
+      const result = await realAdapter.updatePreferences({ onboardingCompleted: true })
+      setUser(result.preferences)
+      navigate('/dashboard', { replace: true })
+    } catch (err) {
+      setError(err.message || 'Could not finish setup.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   const finish = async event => {
@@ -30,11 +44,17 @@ export default function Onboarding() {
     setLoading(true)
     setError('')
     try {
+      const existing = await realAdapter.getCategories()
       for (const item of categories.filter(category => category.name.trim())) {
-        const { category } = await realAdapter.createCategory({
-          name: item.name.trim(),
-          color: item.color,
-        })
+        const name = item.name.trim()
+        let category = existing.categories.find(value => value.name.toLowerCase() === name.toLowerCase())
+        if (!category) {
+          const created = await realAdapter.createCategory({
+            name,
+            color: item.color,
+          })
+          category = created.category
+        }
         if (item.budget) {
           await realAdapter.updateBudget(category.id, {
             month,
@@ -42,6 +62,8 @@ export default function Onboarding() {
           })
         }
       }
+      const result = await realAdapter.updatePreferences({ onboardingCompleted: true })
+      setUser(result.preferences)
       navigate('/dashboard', { replace: true })
     } catch (err) {
       setError(err.message || 'Could not save your setup.')
@@ -65,7 +87,7 @@ export default function Onboarding() {
             </div>
           ))}
           <div className="flex justify-end gap-3">
-            <Button type="button" variant="ghost" onClick={() => navigate('/dashboard')}>Skip for now</Button>
+            <Button type="button" variant="ghost" onClick={skip}>Skip for now</Button>
             <Button type="submit" loading={loading}>Save setup</Button>
           </div>
         </form>

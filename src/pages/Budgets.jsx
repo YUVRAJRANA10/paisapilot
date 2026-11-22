@@ -4,6 +4,7 @@ import { Badge } from '../components/ui/Badge'
 import { Card } from '../components/ui/Card'
 import { realAdapter } from '../services/realAdapter'
 const CURRENT_MONTH = new Date().toISOString().slice(0, 7)
+const CURRENT_MONTH_LABEL = new Date().toLocaleDateString('en-IN', { month: 'long', year: 'numeric' })
 import { calculatePercentage, formatINR } from '../utils/format'
 
 export default function Budgets() {
@@ -21,7 +22,7 @@ export default function Budgets() {
       <div>
         <p className="text-label-sm uppercase tracking-wider text-primary">Control center</p>
         <h1 className="headline-lg text-on-surface font-semibold">Monthly budgets</h1>
-        <p className="body-md text-secondary">Keep category spending aligned with your October plan.</p>
+        <p className="body-md text-secondary">Keep category spending aligned with your {CURRENT_MONTH_LABEL} plan.</p>
       </div>
       <Card className="bg-inverse-surface text-inverse-on-surface">
         <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">

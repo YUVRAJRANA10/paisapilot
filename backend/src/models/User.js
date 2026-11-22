@@ -39,6 +39,11 @@ const userSchema = new mongoose.Schema({
     required: true,
     default: 'Asia/Kolkata',
   },
+  onboardingCompleted: {
+    type: Boolean,
+    required: true,
+    default: false,
+  },
 }, {
   timestamps: true,
   versionKey: false,

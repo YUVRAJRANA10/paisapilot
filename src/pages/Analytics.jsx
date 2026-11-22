@@ -5,6 +5,7 @@ import { DonutChart } from '../components/charts/DonutChart'
 import { BarChart } from '../components/charts/BarChart'
 import { realAdapter } from '../services/realAdapter'
 const CURRENT_MONTH = new Date().toISOString().slice(0, 7)
+const CURRENT_MONTH_LABEL = new Date().toLocaleDateString('en-IN', { month: 'long', year: 'numeric' })
 import { formatINR } from '../utils/format'
 
 export default function Analytics() {
@@ -14,7 +15,7 @@ export default function Analytics() {
   const { income, expense, savingsRate, categorySpending, monthlyTrend } = report
   return (
     <div className="space-y-6">
-      <div><p className="text-label-sm uppercase tracking-wider text-primary">Financial intelligence</p><h1 className="headline-lg text-on-surface font-semibold">Analytics</h1><p className="body-md text-secondary">Understand the patterns behind your October cash flow.</p></div>
+      <div><p className="text-label-sm uppercase tracking-wider text-primary">Financial intelligence</p><h1 className="headline-lg text-on-surface font-semibold">Analytics</h1><p className="body-md text-secondary">Understand the patterns behind your {CURRENT_MONTH_LABEL} cash flow.</p></div>
       <div className="grid gap-4 sm:grid-cols-3">
         <Metric label="Income" value={formatINR(income)} icon={<ArrowUpRight />} tone="text-income" />
         <Metric label="Expenses" value={formatINR(expense)} icon={<ArrowDownRight />} tone="text-expense" />

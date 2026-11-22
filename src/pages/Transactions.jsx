@@ -30,8 +30,8 @@ export default function Transactions() {
         limit: 100,
         type,
         category,
-        from: from ? `${from}T00:00:00` : undefined,
-        to: to ? `${to}T23:59:59` : undefined,
+        from: from ? new Date(`${from}T00:00:00`).toISOString() : undefined,
+        to: to ? new Date(`${to}T23:59:59`).toISOString() : undefined,
       })
       setTransactions(result.transactions)
     } finally {
