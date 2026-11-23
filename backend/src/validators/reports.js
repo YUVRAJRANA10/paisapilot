@@ -13,3 +13,11 @@ export const categoryReportQuerySchema = z.object({
   message: 'from must be earlier than or equal to to.',
   path: ['from'],
 })
+export const exportReportQuerySchema = z.object({
+  from: isoDate,
+  to: isoDate,
+  format: z.literal('csv').default('csv'),
+}).strict().refine(value => value.from <= value.to, {
+  message: 'from must be earlier than or equal to to.',
+  path: ['from'],
+})

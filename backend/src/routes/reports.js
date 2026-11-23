@@ -1,7 +1,7 @@
 import { Router } from 'express'
 import { createRequireAuth } from '../middleware/auth.js'
 import { AppError } from '../middleware/errors.js'
-import { categoryReportQuerySchema, summaryQuerySchema, trendQuerySchema } from '../validators/reports.js'
+import { categoryReportQuerySchema, exportReportQuerySchema, summaryQuerySchema, trendQuerySchema } from '../validators/reports.js'
 
 function validate(schema, input) {
   const result = schema.safeParse(input)
@@ -23,7 +23,19 @@ export function createReportsRouter({ reportService, authConfig, authService }) 
     authService,
   })
 
-  router.use(['/reports/summary', '/reports/by-category', '/reports/monthly-trend'], requireAuth)
+  router.use(['/reports/summary', '/reports/by-category', '/reports/monthly-trend', '/reports/export'], requireAuth)
+
+  router.get('/reports/export', async (req, res, next) => {
+    try {
+      const { from, to } = validate(exportReportQuerySchema, req.query)
+      const csv = await reportService.exportCsv(req.user.id, from, to)
+      res.setHeader('Content-Type', 'text/csv; charset=utf-8')
+      res.setHeader('Content-Disposition', 'attachment; filename="paisapilot-report.csv"')
+      res.send(csv)
+    } catch (error) {
+      next(error)
+    }
+  })
 
   router.get('/reports/summary', async (req, res, next) => {
     try {

@@ -93,6 +93,10 @@ const financeApp = createApp({
     },
   },
   reportService: {
+    async exportCsv(userId, from, to) {
+      financeCalls.push(['report-export', userId, from, to])
+      return 'Date,Type,Category,Amount (paise),Payment mode,Note\r\n'
+    },
     async summary(userId, month, timezone) {
       financeCalls.push(['report-summary', userId, month, timezone])
       return { incomePaise: 1000, expensePaise: 250, balancePaise: 750, savingsRate: 75, transactionCount: 2 }
@@ -338,6 +342,45 @@ describe('categories and transactions routes', () => {
       transactionCount: 2,
     })
     expect(financeCalls).toContainEqual(['report-summary', 'user-1', '2026-11', undefined])
+  })
+
+  it('exports an authenticated CSV report', async () => {
+    const token = jwt.sign({ sub: 'user-1' }, 'test-secret-that-is-at-least-32-characters', {
+      issuer: 'paisapilot-api',
+      audience: 'paisapilot-web',
+    })
+    const response = await request(financeApp)
+      .get('/api/reports/export?from=2026-11-01T00:00:00.000Z&to=2026-11-30T23:59:59.999Z&format=csv')
+      .set('Cookie', `paisapilot_session=${token}`)
+
+    expect(response.status).toBe(200)
+    expect(response.headers['content-type']).toContain('text/csv')
+    expect(response.headers['content-disposition']).toContain('paisapilot-report.csv')
+    expect(response.text).toContain('Amount (paise)')
+    expect(financeCalls).toContainEqual([
+      'report-export',
+      'user-1',
+      '2026-11-01T00:00:00.000Z',
+      '2026-11-30T23:59:59.999Z',
+    ])
+  })
+
+  it('requires authentication and valid parameters for CSV exports', async () => {
+    const unauthenticated = await request(financeApp).get(
+      '/api/reports/export?from=2026-11-01T00:00:00.000Z&to=2026-11-30T23:59:59.999Z&format=csv',
+    )
+    expect(unauthenticated.status).toBe(401)
+
+    const token = jwt.sign({ sub: 'user-1' }, 'test-secret-that-is-at-least-32-characters', {
+      issuer: 'paisapilot-api',
+      audience: 'paisapilot-web',
+    })
+    const invalid = await request(financeApp)
+      .get('/api/reports/export?from=2026-12-01T00:00:00.000Z&to=2026-11-30T23:59:59.999Z&format=csv')
+      .set('Cookie', `paisapilot_session=${token}`)
+
+    expect(invalid.status).toBe(400)
+    expect(invalid.body.error.code).toBe('VALIDATION_ERROR')
   })
 
   it('protects budgets and validates budget limits', async () => {

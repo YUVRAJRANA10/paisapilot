@@ -17,4 +17,5 @@ export const realAdapter = {
   updateBudget: (categoryId, payload) => api.updateBudget(categoryId, payload),
   getDashboardReport: params => api.getDashboardReport(params),
   updatePreferences: payload => api.updatePreferences(payload),
+  exportReport: params => api.exportReport(params),
 }

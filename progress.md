@@ -2,6 +2,29 @@
 
 Last reviewed: 2026-11-15
 
+## Phase 7.3 CSV export milestone
+
+The application now provides a real monthly CSV report download from Analytics.
+
+### Implemented
+
+- Added authenticated `GET /api/reports/export`.
+- Added strict `from`, `to`, and `format=csv` validation.
+- Added user-scoped transaction export from MongoDB.
+- CSV columns include date, type, category, paise amount, payment mode, and note.
+- Added CSV escaping and spreadsheet formula-injection protection.
+- Added an Export CSV button to Analytics.
+- Added browser blob download handling with the file name
+  `paisapilot-YYYY-MM.csv`.
+- Added route coverage for authentication, validation, headers, and user scoping
+  calls.
+
+### Verification
+
+- `npm run build`: passed.
+- `npm run test:backend`: passed — 19 tests.
+- `git diff --check`: passed.
+
 ## Phase 7.2 onboarding persistence milestone
 
 Onboarding now persists as account state instead of only being a one-time

@@ -8,6 +8,33 @@ function assertRange(range) {
 
 export function createReportService({ transactionModel = Transaction } = {}) {
   return {
+    async exportCsv(userId, from, to) {
+      const start = new Date(from)
+      const end = new Date(to)
+      const transactions = await transactionModel.find({
+        userId,
+        date: { $gte: start, $lte: end },
+      }).populate('categoryId', 'name').sort({ date: -1, _id: -1 }).lean()
+
+      const escapeCsv = value => {
+        let text = String(value ?? '')
+        if (/^[=+\-@\t\r]/.test(text)) text = `'${text}`
+        return `"${text.replaceAll('"', '""')}"`
+      }
+
+      const rows = [
+        ['Date', 'Type', 'Category', 'Amount (paise)', 'Payment mode', 'Note'],
+        ...transactions.map(transaction => [
+          transaction.date.toISOString(),
+          transaction.type,
+          transaction.categoryId?.name || 'Archived category',
+          transaction.amountPaise,
+          transaction.paymentMode,
+          transaction.note || '',
+        ]),
+      ]
+      return rows.map(row => row.map(escapeCsv).join(',')).join('\r\n') + '\r\n'
+    },
     async summary(userId, month, timezone) {
       const range = monthDateRange(month, timezone)
       assertRange(range)

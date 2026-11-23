@@ -153,6 +153,17 @@ export const api = {
     }
   },
   getMonthlyTrend: async ({ year }) => request(`/reports/monthly-trend?year=${year}`),
+  exportReport: async ({ from, to }) => {
+    const query = new URLSearchParams({ from, to, format: 'csv' })
+    const response = await fetch(`${API_BASE_URL}/reports/export?${query}`, {
+      credentials: 'include',
+    })
+    if (!response.ok) {
+      const body = await response.json().catch(() => ({}))
+      throw new Error(body.error?.message || 'Could not export report.')
+    }
+    return response.blob()
+  },
 }
 
 export default api
