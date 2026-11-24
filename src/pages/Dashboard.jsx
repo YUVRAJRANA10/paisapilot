@@ -80,6 +80,7 @@ export default function Dashboard() {
   const monthlyExpense = summary.expense
   const balance = summary.balance
   const savingsRate = summary.savingsRate
+  const totalAllocated = budgets.reduce((sum, b) => sum + (b.limit || 0), 0)
 
   const budgetItems = budgets.map(b => ({
     ...b,
@@ -94,12 +95,19 @@ export default function Dashboard() {
           <h1 className="headline-lg text-headline-lg text-on-surface font-semibold tracking-tight">
             Welcome back, {user?.name || 'there'}
           </h1>
-          <p className="body-md text-body-md text-secondary">
-            Your money, under control. Here's your financial flightpath for{' '}
-            <span className="font-medium text-on-surface">
-              {new Date(selectedMonth + '-01').toLocaleDateString('en-IN', { month: 'long', year: 'numeric' })}
+          <div className="flex flex-wrap items-center gap-2 body-md text-body-md text-secondary">
+            <span>
+              Your money, under control. Here's your financial flightpath for{' '}
+              <span className="font-medium text-on-surface">
+                {new Date(selectedMonth + '-01').toLocaleDateString('en-IN', { month: 'long', year: 'numeric' })}
+              </span>
             </span>
-          </p>
+            {user?.monthlyIncomePaise ? (
+              <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-emerald-500/10 text-emerald-600 border border-emerald-500/20">
+                Base salary: {formatINR(user.monthlyIncomePaise)}/mo
+              </span>
+            ) : null}
+          </div>
         </div>
 
         <div className="flex items-center gap-2 flex-wrap">
@@ -122,11 +130,22 @@ export default function Dashboard() {
             </button>
             <button
               onClick={() => {
+                if (selectedMonth >= CURRENT_MONTH) return
                 const d = new Date(selectedMonth + '-01')
                 d.setMonth(d.getMonth() + 1)
-                setSelectedMonth(d.toISOString().slice(0, 7))
+                const next = d.toISOString().slice(0, 7)
+                if (next <= CURRENT_MONTH) {
+                  setSelectedMonth(next)
+                }
               }}
-              className="px-3.5 py-1.5 rounded-lg text-label-md font-label-md text-secondary hover:text-on-surface transition-colors"
+              disabled={selectedMonth >= CURRENT_MONTH}
+              className={cn(
+                "px-3.5 py-1.5 rounded-lg text-label-md font-label-md transition-colors",
+                selectedMonth >= CURRENT_MONTH
+                  ? "opacity-35 cursor-not-allowed text-secondary"
+                  : "text-secondary hover:text-on-surface"
+              )}
+              title={selectedMonth >= CURRENT_MONTH ? "Cannot navigate past current month" : "Next Month"}
             >
               Next Month
             </button>
@@ -162,9 +181,21 @@ export default function Dashboard() {
           <div className="flex items-baseline gap-1">
             <span className="text-3xl font-bold text-on-surface">{formatINR(monthlyIncome)}</span>
           </div>
-          <div className="mt-2 flex items-center gap-1">
-            <TrendingUp size={14} className="text-emerald-600" />
-            <span className="text-label-sm text-emerald-600 font-medium">+12% vs last month</span>
+          <div className="mt-2 text-label-sm">
+            {user?.monthlyIncomePaise ? (
+              monthlyIncome > 0 ? (
+                <div className="flex items-center gap-1 text-emerald-600 font-medium">
+                  <TrendingUp size={14} />
+                  <span>{Math.round((monthlyIncome / user.monthlyIncomePaise) * 100)}% of expected salary ({formatINR(user.monthlyIncomePaise)})</span>
+                </div>
+              ) : (
+                <span className="text-secondary text-xs">
+                  Expected: <span className="font-medium text-on-surface">{formatINR(user.monthlyIncomePaise)}</span> (no income logged yet)
+                </span>
+              )
+            ) : (
+              <span className="text-secondary text-xs">{monthlyIncome > 0 ? 'Total received this month' : 'No income logged'}</span>
+            )}
           </div>
         </Card>
         <Card padded={false} className="p-5">
@@ -177,9 +208,18 @@ export default function Dashboard() {
           <div className="flex items-baseline gap-1">
             <span className="text-3xl font-bold text-on-surface">{formatINR(monthlyExpense)}</span>
           </div>
-          <div className="mt-2 flex items-center gap-1">
-            <TrendingDown size={14} className="text-red-600" />
-            <span className="text-label-sm text-red-600 font-medium">-5% vs last month</span>
+          <div className="mt-2 text-label-sm">
+            {totalAllocated > 0 ? (
+              <span className="text-secondary text-xs">
+                {monthlyExpense > 0
+                  ? `${formatINR(monthlyExpense)} of ${formatINR(totalAllocated)} budget used`
+                  : `₹0 of ${formatINR(totalAllocated)} budget used`}
+              </span>
+            ) : (
+              <span className="text-secondary text-xs">
+                {monthlyExpense > 0 ? 'Total expenses logged' : 'No expenses logged'}
+              </span>
+            )}
           </div>
         </Card>
 

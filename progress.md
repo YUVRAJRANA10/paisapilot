@@ -1,6 +1,23 @@
 # PaisaPilot Project Progress
 
-Last reviewed: 2026-11-15
+Last reviewed: 2026-11-24
+
+## Phase 7.4 dashboard salary clarity and navigation milestone
+
+The application now displays the user's declared monthly salary, eliminates misleading mock trend badges, adds salary editing in Settings, and restricts month navigation to valid historical/current months.
+
+### Implemented
+
+- Added declared baseline monthly salary display on the Dashboard header and Monthly Income card.
+- Replaced hardcoded static trend badges (+12%, -5%) with real contextual status (expected salary tracking and budget usage).
+- Added an editable Expected Monthly Salary field in Settings that updates `monthlyIncomePaise` via `/api/user/preferences`.
+- Disabled future month navigation ("Next Month") when viewing the current month.
+- Verified MongoDB user profile data persistence for salary, budgets, and categories.
+
+### Verification
+
+- `npm run build`: passed.
+- `git diff --check`: passed.
 
 ## Phase 7.3 CSV export milestone
 
