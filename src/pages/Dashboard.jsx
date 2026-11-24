@@ -76,10 +76,19 @@ export default function Dashboard() {
     )
   }
 
-  const monthlyIncome = summary.income
-  const monthlyExpense = summary.expense
-  const balance = summary.balance
-  const savingsRate = summary.savingsRate
+  const loggedIncome = summary.income || 0
+  const monthlyExpense = summary.expense || 0
+  const baseSalary = user?.monthlyIncomePaise || 0
+
+  // Gross monthly income combines declared base salary + additional logged income
+  const totalGrossIncome = baseSalary > 0
+    ? (loggedIncome >= baseSalary ? loggedIncome : baseSalary + loggedIncome)
+    : loggedIncome
+
+  const netBalance = totalGrossIncome - monthlyExpense
+  const savingsRate = totalGrossIncome > 0
+    ? Math.max(0, Number(((netBalance / totalGrossIncome) * 100).toFixed(1)))
+    : 0
   const totalAllocated = budgets.reduce((sum, b) => sum + (b.limit || 0), 0)
 
   const budgetItems = budgets.map(b => ({
@@ -87,6 +96,18 @@ export default function Dashboard() {
     percentage: b.limit > 0 ? calculatePercentage(b.used, b.limit) : 0,
     isOverBudget: b.used > b.limit,
   }))
+
+  const effectiveMonthlyTrend = monthlyTrend.map(m => {
+    if (m.month === selectedMonth && baseSalary > 0) {
+      const inc = Math.max(m.income, totalGrossIncome)
+      return {
+        ...m,
+        income: inc,
+        balance: inc - m.expense,
+      }
+    }
+    return m
+  })
 
   return (
     <div className="space-y-6">
@@ -156,19 +177,28 @@ export default function Dashboard() {
         <Card padded={false} className="p-5">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <p className="text-label-sm text-label-sm text-secondary uppercase tracking-wider">Total Balance</p>
+              <p className="text-label-sm text-label-sm text-secondary uppercase tracking-wider">Net Balance</p>
             </div>
             <Wallet size={20} className="text-secondary" />
           </div>
           <div className="flex items-baseline gap-1">
-            <span className="text-3xl font-bold text-on-surface">{formatINR(balance)}</span>
+            <span className={cn("text-3xl font-bold", netBalance >= 0 ? "text-on-surface" : "text-error")}>
+              {formatINR(netBalance)}
+            </span>
           </div>
-          <Sparkline
-            data={monthlyTrend.map((m, i) => ({ value: m.balance, label: m.label }))}
-            dataKey="value"
-            color={balance >= 0 ? '#006948' : '#ef4444'}
-            height={40}
-          />
+          <div className="mt-2 text-label-sm">
+            <span className="text-secondary text-xs">
+              {formatINR(totalGrossIncome)} income − {formatINR(monthlyExpense)} expenses
+            </span>
+          </div>
+          <div className="mt-2">
+            <Sparkline
+              data={effectiveMonthlyTrend.map((m, i) => ({ value: m.balance, label: m.label }))}
+              dataKey="value"
+              color={netBalance >= 0 ? '#006948' : '#ef4444'}
+              height={36}
+            />
+          </div>
         </Card>
 
         <Card padded={false} className="p-5">
@@ -179,22 +209,21 @@ export default function Dashboard() {
             <DollarSign size={20} className="text-emerald-600" />
           </div>
           <div className="flex items-baseline gap-1">
-            <span className="text-3xl font-bold text-on-surface">{formatINR(monthlyIncome)}</span>
+            <span className="text-3xl font-bold text-on-surface">{formatINR(totalGrossIncome)}</span>
           </div>
           <div className="mt-2 text-label-sm">
-            {user?.monthlyIncomePaise ? (
-              monthlyIncome > 0 ? (
-                <div className="flex items-center gap-1 text-emerald-600 font-medium">
-                  <TrendingUp size={14} />
-                  <span>{Math.round((monthlyIncome / user.monthlyIncomePaise) * 100)}% of expected salary ({formatINR(user.monthlyIncomePaise)})</span>
-                </div>
-              ) : (
-                <span className="text-secondary text-xs">
-                  Expected: <span className="font-medium text-on-surface">{formatINR(user.monthlyIncomePaise)}</span> (no income logged yet)
-                </span>
-              )
+            {baseSalary > 0 && loggedIncome > 0 && loggedIncome < baseSalary ? (
+              <span className="text-secondary text-xs">
+                {formatINR(baseSalary)} base + {formatINR(loggedIncome)} extra
+              </span>
+            ) : baseSalary > 0 && loggedIncome === 0 ? (
+              <span className="text-secondary text-xs">
+                Base salary ({formatINR(baseSalary)})
+              </span>
             ) : (
-              <span className="text-secondary text-xs">{monthlyIncome > 0 ? 'Total received this month' : 'No income logged'}</span>
+              <span className="text-secondary text-xs">
+                {totalGrossIncome > 0 ? 'Total received this month' : 'No income recorded'}
+              </span>
             )}
           </div>
         </Card>
@@ -237,7 +266,7 @@ export default function Dashboard() {
             <div className="h-full bg-primary" style={{ width: Math.min(savingsRate, 100) + '%' }} />
           </div>
           <p className="text-label-sm text-on-surface-variant mt-1">
-            {monthlyIncome > 0 ? `₹${((monthlyIncome - monthlyExpense) / 100).toFixed(0)} saved this month` : '₹0 saved'}
+            {netBalance > 0 ? `${formatINR(netBalance)} saved this month` : '₹0 saved'}
           </p>
         </Card>
       </div>
@@ -280,7 +309,7 @@ export default function Dashboard() {
             <CardSubtitle>Income vs Expense over the last 6 months</CardSubtitle>
           </CardHeader>
           <CardContent>
-            <BarChart data={monthlyTrend} height={300} title="Cash Flow" />
+            <BarChart data={effectiveMonthlyTrend} height={300} title="Cash Flow" />
           </CardContent>
         </Card>
 
