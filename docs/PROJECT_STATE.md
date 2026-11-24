@@ -22,6 +22,7 @@ as the code. It supplements `PLAN.md` (product requirements) and
 | Phase 7.2 | Onboarding persistence and transaction filter correctness | Implemented |
 | Phase 7.3 | Authenticated CSV report export | Implemented |
 | Phase 7.4 | Dashboard salary clarity, settings preferences, and navigation safety | Implemented |
+| Phase 7.5 | MongoDB aggregation ObjectId and transaction category name fix | Implemented |
 | Phase 8 | Recurring jobs, alerts, exports, and deployment | Planned |
 
 The application is not yet a complete production finance product. Registration,

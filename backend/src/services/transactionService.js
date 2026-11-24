@@ -4,11 +4,14 @@ import { Transaction } from '../models/Transaction.js'
 import { AppError } from '../middleware/errors.js'
 
 function publicTransaction(transaction) {
+  const category = transaction.categoryId
   return {
     id: transaction._id.toString(),
     type: transaction.type,
     amountPaise: transaction.amountPaise,
-    categoryId: transaction.categoryId.toString(),
+    categoryId: typeof category === 'object' && category?._id ? category._id.toString() : category?.toString(),
+    categoryName: typeof category === 'object' && category?.name ? category.name : undefined,
+    categoryColor: typeof category === 'object' && category?.color ? category.color : undefined,
     date: transaction.date.toISOString(),
     paymentMode: transaction.paymentMode,
     note: transaction.note,
@@ -49,7 +52,12 @@ export function createTransactionService({
       }
       const skip = (query.page - 1) * query.limit
       const [transactions, total] = await Promise.all([
-        transactionModel.find(filter).sort({ date: -1, _id: -1 }).skip(skip).limit(query.limit).lean(),
+        transactionModel.find(filter)
+          .populate('categoryId', 'name color')
+          .sort({ date: -1, _id: -1 })
+          .skip(skip)
+          .limit(query.limit)
+          .lean(),
         transactionModel.countDocuments(filter),
       ])
       return {
@@ -70,7 +78,8 @@ export function createTransactionService({
         userId,
         date: new Date(payload.date),
       })
-      return publicTransaction(transaction)
+      const populated = await transactionModel.findById(transaction._id).populate('categoryId', 'name color').lean()
+      return publicTransaction(populated || transaction)
     },
 
     async update(userId, id, payload) {
@@ -80,7 +89,7 @@ export function createTransactionService({
         { _id: id, userId },
         { ...payload, date: new Date(payload.date) },
         { new: true, runValidators: true },
-      ).lean()
+      ).populate('categoryId', 'name color').lean()
       if (!transaction) throw new AppError(404, 'TRANSACTION_NOT_FOUND', 'Transaction was not found.')
       return publicTransaction(transaction)
     },

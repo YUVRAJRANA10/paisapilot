@@ -2,6 +2,26 @@
 
 Last reviewed: 2026-11-24
 
+## Phase 7.5 MongoDB aggregation ObjectId and category name bugfix
+
+Fixed a critical data mismatch where MongoDB aggregation pipelines in `reportService` and `budgetService` received a string `userId` from auth instead of a MongoDB `ObjectId`, causing all aggregation queries to return zero results regardless of saved transactions. Also populated category names in transaction listings.
+
+### Implemented
+
+- Added `toObjectId` conversion in `reportService` and `budgetService` aggregation pipelines so `$match: { userId }` matches the stored BSON `ObjectId`.
+- Populated `categoryId` in `transactionService.list`, `create`, and `update` so `categoryName` and `categoryColor` are populated in the transactions table.
+- Verified live that the user's ₹1,000 Grocery expense now correctly updates:
+  - Dashboard Monthly Expenses (₹1,000)
+  - Total Balance (-₹1,000)
+  - Shopping Budget utilization (10%, ₹1,000 of ₹10,000)
+  - Expense by Category report & chart
+
+### Verification
+
+- Live MongoDB pipeline verification: passed (`expensePaise: 100000`, `usedPaise: 100000`).
+- `npm run build`: passed.
+- `git diff --check`: passed.
+
 ## Phase 7.4 dashboard salary clarity and navigation milestone
 
 The application now displays the user's declared monthly salary, eliminates misleading mock trend badges, adds salary editing in Settings, and restricts month navigation to valid historical/current months.

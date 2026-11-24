@@ -1,6 +1,13 @@
+import mongoose from 'mongoose'
 import { Transaction } from '../models/Transaction.js'
 import { monthDateRange, yearDateRange } from '../utils/timezone.js'
 import { AppError } from '../middleware/errors.js'
+
+function toObjectId(id) {
+  if (id instanceof mongoose.Types.ObjectId) return id
+  if (mongoose.isValidObjectId(id)) return new mongoose.Types.ObjectId(id)
+  return id
+}
 
 function assertRange(range) {
   if (!range) throw new AppError(400, 'VALIDATION_ERROR', 'The requested date range is invalid.')
@@ -9,10 +16,11 @@ function assertRange(range) {
 export function createReportService({ transactionModel = Transaction } = {}) {
   return {
     async exportCsv(userId, from, to) {
+      const userObjectId = toObjectId(userId)
       const start = new Date(from)
       const end = new Date(to)
       const transactions = await transactionModel.find({
-        userId,
+        userId: userObjectId,
         date: { $gte: start, $lte: end },
       }).populate('categoryId', 'name').sort({ date: -1, _id: -1 }).lean()
 
@@ -36,10 +44,11 @@ export function createReportService({ transactionModel = Transaction } = {}) {
       return rows.map(row => row.map(escapeCsv).join(',')).join('\r\n') + '\r\n'
     },
     async summary(userId, month, timezone) {
+      const userObjectId = toObjectId(userId)
       const range = monthDateRange(month, timezone)
       assertRange(range)
       const [result] = await transactionModel.aggregate([
-        { $match: { userId, date: { $gte: range.from, $lt: range.to } } },
+        { $match: { userId: userObjectId, date: { $gte: range.from, $lt: range.to } } },
         {
           $facet: {
             totals: [
@@ -52,23 +61,24 @@ export function createReportService({ transactionModel = Transaction } = {}) {
           },
         },
       ])
-      const incomePaise = result.totals.find(item => item._id === 'income')?.totalPaise || 0
-      const expensePaise = result.totals.find(item => item._id === 'expense')?.totalPaise || 0
+      const incomePaise = result?.totals?.find(item => item._id === 'income')?.totalPaise || 0
+      const expensePaise = result?.totals?.find(item => item._id === 'expense')?.totalPaise || 0
       return {
         incomePaise,
         expensePaise,
         balancePaise: incomePaise - expensePaise,
         savingsRate: incomePaise > 0 ? Number((((incomePaise - expensePaise) / incomePaise) * 100).toFixed(2)) : 0,
-        transactionCount: result.count[0]?.value || 0,
+        transactionCount: result?.count?.[0]?.value || 0,
       }
     },
 
     async byCategory(userId, from, to) {
+      const userObjectId = toObjectId(userId)
       const start = new Date(from)
       const end = new Date(to)
       const [rows] = await Promise.all([
         transactionModel.aggregate([
-          { $match: { userId, type: 'expense', date: { $gte: start, $lte: end } } },
+          { $match: { userId: userObjectId, type: 'expense', date: { $gte: start, $lte: end } } },
           { $group: { _id: '$categoryId', totalPaise: { $sum: '$amountPaise' }, count: { $sum: 1 } } },
           { $lookup: { from: 'categories', localField: '_id', foreignField: '_id', as: 'category' } },
           { $unwind: { path: '$category', preserveNullAndEmptyArrays: true } },
@@ -86,10 +96,11 @@ export function createReportService({ transactionModel = Transaction } = {}) {
     },
 
     async monthlyTrend(userId, year, timezone) {
+      const userObjectId = toObjectId(userId)
       const range = yearDateRange(year, timezone)
       assertRange(range)
       const rows = await transactionModel.aggregate([
-        { $match: { userId, date: { $gte: range.from, $lt: range.to } } },
+        { $match: { userId: userObjectId, date: { $gte: range.from, $lt: range.to } } },
         { $group: {
           _id: {
             month: { $dateToString: { format: '%Y-%m', date: '$date', timezone } },

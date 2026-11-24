@@ -25,6 +25,12 @@ function assertCategoryId(id) {
   }
 }
 
+function toObjectId(id) {
+  if (id instanceof mongoose.Types.ObjectId) return id
+  if (mongoose.isValidObjectId(id)) return new mongoose.Types.ObjectId(id)
+  return id
+}
+
 export function createBudgetService({
   budgetModel = Budget,
   categoryModel = Category,
@@ -42,10 +48,11 @@ export function createBudgetService({
   }
 
   async function usageByCategory(userId, month, timezone) {
+    const userObjectId = toObjectId(userId)
     const range = monthDateRange(month, timezone)
     if (!range) throw new AppError(400, 'VALIDATION_ERROR', 'The requested month is invalid.')
     const rows = await transactionModel.aggregate([
-      { $match: { userId, type: 'expense', date: { $gte: range.from, $lt: range.to } } },
+      { $match: { userId: userObjectId, type: 'expense', date: { $gte: range.from, $lt: range.to } } },
       { $group: { _id: '$categoryId', usedPaise: { $sum: '$amountPaise' } } },
     ])
     return new Map(rows.map(row => [row._id.toString(), row.usedPaise]))

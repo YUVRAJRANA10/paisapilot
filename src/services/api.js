@@ -26,6 +26,7 @@ const toPaise = amount => Math.round(Number(amount || 0) * 100)
 const fromTransaction = transaction => ({
   ...transaction,
   amount: transaction.amountPaise,
+  categoryName: transaction.categoryName,
 })
 const paymentMode = value => ({
   UPI: 'upi',
