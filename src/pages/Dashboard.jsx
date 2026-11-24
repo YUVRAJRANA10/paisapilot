@@ -297,17 +297,20 @@ export default function Dashboard() {
               <div className="flex-1 space-y-3">
                 {categorySpending.map(item => {
                   const catColor = item.categoryColor || '#9ca3af'
+                  const pct = typeof item.percentage === 'number'
+                    ? item.percentage
+                    : (monthlyExpense > 0 ? (((item.total ?? item.totalPaise) || 0) / monthlyExpense) * 100 : 0)
                   return (
-                    <div key={item.categoryId} className="flex items-center gap-3">
+                    <div key={item.categoryId || item.name} className="flex items-center gap-3">
                       <div className="w-3 h-3 rounded-full" style={{ backgroundColor: catColor }} />
                       <div className="flex-1">
-                        <div className="text-label-sm text-label-sm text-on-surface font-medium">{item.categoryName}</div>
+                        <div className="text-label-sm text-label-sm text-on-surface font-medium">{item.categoryName || item.name}</div>
                         <div className="text-label-sm text-on-surface-variant">
-                          ₹{(item.total / 100).toFixed(0)} ({item.percentage.toFixed(0)}%)
+                          ₹{(((item.total ?? item.totalPaise) || 0) / 100).toFixed(0)} ({pct.toFixed(0)}%)
                         </div>
                       </div>
                       <div className="text-right text-label-sm font-mono tabular-nums text-on-surface">
-                        -₹{(item.total / 100).toFixed(0)}
+                        -₹{(((item.total ?? item.totalPaise) || 0) / 100).toFixed(0)}
                       </div>
                     </div>
                   )

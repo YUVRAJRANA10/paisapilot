@@ -134,17 +134,20 @@ export const api = {
       request(`/reports/by-category?from=${encodeURIComponent(`${month}-01T00:00:00.000Z`)}&to=${encodeURIComponent(lastDay)}`),
       request(`/reports/monthly-trend?year=${month.slice(0, 4)}`),
     ])
+    const totalExpensePaise = summary?.summary?.expensePaise || 0
     return {
       ...summary.summary,
       income: summary.summary.incomePaise,
       expense: summary.summary.expensePaise,
       balance: summary.summary.balancePaise,
-      categorySpending: categories.categories.map(item => ({
+      categorySpending: (categories?.categories || []).map(item => ({
         ...item,
         name: item.categoryName,
         total: item.totalPaise,
+        value: item.totalPaise,
+        percentage: totalExpensePaise > 0 ? (item.totalPaise / totalExpensePaise) * 100 : 0,
       })),
-      monthlyTrend: trend.months.map(item => ({
+      monthlyTrend: (trend?.months || []).map(item => ({
         ...item,
         income: item.incomePaise,
         expense: item.expensePaise,
