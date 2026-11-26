@@ -1,9 +1,13 @@
 import { useState } from 'react'
 import { Search } from 'lucide-react'
 import { cn } from '../../utils/cn'
-import { DEMO_USER } from '../../utils/constants'
+import { useAuth } from '../../context/AuthContext'
+import { getUserDisplayName } from '../../utils/user'
 
-export function TopBar({ user = DEMO_USER }) {
+export function TopBar({ user: propUser }) {
+  const { user: authUser } = useAuth()
+  const user = propUser || authUser
+  const displayName = getUserDisplayName(user)
   const [userMenuOpen, setUserMenuOpen] = useState(false)
   const [period, setPeriod] = useState('Current Month')
 
@@ -49,14 +53,6 @@ export function TopBar({ user = DEMO_USER }) {
         </div>
 
         <div className="flex items-center gap-3">
-          <div className="hidden md:flex flex-col items-end gap-1">
-            <div className="text-sm font-medium text-on-surface">PaisaPilot Demo</div>
-            <div className="text-xs text-secondary flex items-center gap-1">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              Demo data
-            </div>
-          </div>
-
           <div className="relative">
             <button
               onClick={() => setUserMenuOpen(!userMenuOpen)}
@@ -66,10 +62,10 @@ export function TopBar({ user = DEMO_USER }) {
               aria-expanded={userMenuOpen}
             >
               <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white text-sm font-bold">
-                {user?.name?.charAt(0) || 'A'}
+                {displayName.charAt(0).toUpperCase()}
               </div>
               <span className="hidden md:block text-sm font-medium text-on-surface">
-                {user?.name || 'User'}
+                {displayName}
               </span>
             </button>
           </div>

@@ -1,13 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 
-export function useAuth() {
-  // Placeholder — real implementation uses AuthContext
-  return { user: null, loading: true, isAuthenticated: false, login: () => {}, logout: () => {} }
-}
-
-export function useDemoMode() {
-  return { demoMode: true, toggleDemoMode: () => {}, resetDemoData: () => {} }
-}
+export { useAuth } from '../context/AuthContext'
+export { useDemoMode } from '../context/DemoContext'
 
 export function useDebounce(callback, delay) {
   let timeoutId

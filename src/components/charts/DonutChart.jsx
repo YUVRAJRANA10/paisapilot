@@ -47,7 +47,7 @@ export function DonutChart({ data, width = 300, height = 300, title = '' }) {
               }}
             >
               {data.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                <Cell key={`cell-${index}`} fill={entry.categoryColor || COLORS[index % COLORS.length]} />
               ))}
             </Pie>
             <Tooltip
@@ -58,7 +58,7 @@ export function DonutChart({ data, width = 300, height = 300, title = '' }) {
                 const pct = ((value / total) * 100).toFixed(1)
                 return (
                   <div className="p-2 bg-surface-container-lowest border border-outline/30 rounded-lg shadow-elevated">
-                    <div className="text-label-sm text-on-surface-variant">{item.name}</div>
+                    <div className="text-label-sm text-on-surface-variant">{item.payload?.categoryName || item.name}</div>
                     <div className="text-label-md text-on-surface font-semibold">
                       ₹{(value / 100).toFixed(0)} ({pct}%)
                     </div>

@@ -1,10 +1,29 @@
+import { Navigate } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
+
 export function ProtectedRoute({ children }) {
-  // In demo mode, all routes are accessible
-  // Real auth check will be added in backend integration phase
-  return <>{children}</>
+  const { user, loading } = useAuth()
+
+  if (loading) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-surface">
+        <div className="text-secondary text-sm">Loading...</div>
+      </div>
+    )
+  }
+
+  if (!user) {
+    return <Navigate to="/login" replace />
+  }
+
+  return children
 }
 
 export function AuthRequiredRoute({ children, redirectTo = '/login' }) {
-  // Placeholder — real implementation checks AuthContext
-  return <>{children}</>
+  const { user, loading } = useAuth()
+
+  if (loading) return null
+  if (!user) return <Navigate to={redirectTo} replace />
+
+  return children
 }

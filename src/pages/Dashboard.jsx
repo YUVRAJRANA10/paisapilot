@@ -13,16 +13,24 @@ import { TransactionForm } from '../components/forms/TransactionForm'
 import { demoAdapter } from '../services/demoAdapter'
 import { formatINR, formatDate, formatShortDate, getMonthsArray, calculateSavingsRate, calculatePercentage } from '../utils/format'
 import { cn } from '../utils/cn'
-import { DEMO_CURRENT_MONTH } from '../services/demoData'
+import { useAuth } from '../context/AuthContext'
+import { getUserDisplayName } from '../utils/user'
+
+const getCurrentMonthStr = () => {
+  const now = new Date()
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
+}
 
 export default function Dashboard() {
+  const { user } = useAuth()
+  const displayName = getUserDisplayName(user)
   const [summary, setSummary] = useState(null)
   const [categorySpending, setCategorySpending] = useState([])
   const [monthlyTrend, setMonthlyTrend] = useState([])
   const [recentTransactions, setRecentTransactions] = useState([])
   const [budgets, setBudgets] = useState([])
   const [insights, setInsights] = useState([])
-  const [selectedMonth, setSelectedMonth] = useState(DEMO_CURRENT_MONTH)
+  const [selectedMonth, setSelectedMonth] = useState(getCurrentMonthStr)
   const [showAddModal, setShowAddModal] = useState(false)
 
   const loadData = useCallback(async () => {
@@ -40,8 +48,8 @@ export default function Dashboard() {
       const txnResult = await demoAdapter.getTransactions({ limit: 6, month: selectedMonth })
       setRecentTransactions(txnResult.transactions)
 
-      const { DEMO_INSIGHTS } = await import('../services/demoData')
-      setInsights(DEMO_INSIGHTS)
+      const insightsResult = await demoAdapter.getInsights()
+      setInsights(insightsResult?.insights || [])
     } catch (err) {
       console.error('Failed to load dashboard data:', err)
     }
@@ -78,17 +86,10 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-6">
-      <div className="bg-primary/5 border border-primary/20 rounded-lg p-4 flex items-center gap-3">
-        <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-        <span className="text-sm text-primary font-medium">
-          Demo Mode — Using demonstration data. No real bank accounts or UPI services are connected.
-        </span>
-      </div>
-
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div className="flex flex-col gap-1">
           <h1 className="headline-lg text-headline-lg text-on-surface font-semibold tracking-tight">
-            Welcome back, Yuvraj
+            Welcome back, {displayName}
           </h1>
           <p className="body-md text-body-md text-secondary">
             Your money, under control. Here's your financial flightpath for{' '}
@@ -101,7 +102,7 @@ export default function Dashboard() {
         <div className="flex items-center gap-2 flex-wrap">
           <div className="inline-flex p-1 rounded-xl bg-surface-container-high" role="group">
             <button
-              onClick={() => setSelectedMonth(DEMO_CURRENT_MONTH)}
+              onClick={() => setSelectedMonth(getCurrentMonthStr())}
               className="px-3.5 py-1.5 rounded-lg text-label-md font-label-md bg-surface-container-lowest text-on-surface shadow-sm transition-colors"
             >
               {new Date(selectedMonth + '-01').toLocaleDateString('en-IN', { month: 'long', year: 'numeric' })}
@@ -199,36 +200,42 @@ export default function Dashboard() {
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {budgetItems.map(budget => {
-          const pct = budget.percentage
-          const isOver = budget.isOverBudget
-          return (
-            <Card key={budget.id} padded={false} className="p-5">
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full" style={{ backgroundColor: budget.categoryColor || '#9ca3af' }} />
-                  <span className="text-label-md font-medium text-on-surface">{budget.categoryName}</span>
+        {budgetItems.length === 0 ? (
+          <div className="sm:col-span-2 lg:col-span-3 p-6 text-center text-secondary text-sm border border-outline/30 rounded-xl bg-surface-container-low/40">
+            No budgets configured for this month.
+          </div>
+        ) : (
+          budgetItems.map(budget => {
+            const pct = budget.percentage
+            const isOver = budget.isOverBudget
+            return (
+              <Card key={budget.id} padded={false} className="p-5">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full" style={{ backgroundColor: budget.categoryColor || '#9ca3af' }} />
+                    <span className="text-label-md font-medium text-on-surface">{budget.categoryName}</span>
+                  </div>
+                  <Badge variant={isOver ? 'warning' : 'neutral'} className="text-xs">
+                    {pct.toFixed(0)}%
+                  </Badge>
                 </div>
-                <Badge variant={isOver ? 'warning' : 'neutral'} className="text-xs">
-                  {pct.toFixed(0)}%
-                </Badge>
-              </div>
-              <div className="w-full bg-surface-container-low rounded-full h-1.5 overflow-hidden mb-2">
-                <div className={cn('h-full rounded-full transition-all duration-500', isOver ? 'bg-error' : 'bg-primary')} style={{ width: Math.min(pct, 100) + '%' }} />
-              </div>
-              <div className="flex justify-between text-label-sm">
-                <span className="text-on-surface-variant">
-                  {formatINR(budget.used)} / {formatINR(budget.limit)}
-                </span>
-                {isOver && (
-                  <span className="text-error font-medium">
-                    Over by {formatINR(budget.used - budget.limit)}
+                <div className="w-full bg-surface-container-low rounded-full h-1.5 overflow-hidden mb-2">
+                  <div className={cn('h-full rounded-full transition-all duration-500', isOver ? 'bg-error' : 'bg-primary')} style={{ width: Math.min(pct, 100) + '%' }} />
+                </div>
+                <div className="flex justify-between text-label-sm">
+                  <span className="text-on-surface-variant">
+                    {formatINR(budget.used)} / {formatINR(budget.limit)}
                   </span>
-                )}
-              </div>
-            </Card>
-          )
-        })}
+                  {isOver && (
+                    <span className="text-error font-medium">
+                      Over by {formatINR(budget.used - budget.limit)}
+                    </span>
+                  )}
+                </div>
+              </Card>
+            )
+          })
+        )}
       </div>
         <Card padded={false} className="p-6">
           <CardHeader>
@@ -246,30 +253,36 @@ export default function Dashboard() {
             <CardSubtitle>Where your money went this month</CardSubtitle>
           </CardHeader>
           <CardContent>
-            <div className="flex flex-col lg:flex-row lg:items-center gap-6">
-              <div className="flex-1 min-w-[280px]">
-                <DonutChart data={categorySpending} width={320} height={320} title="" />
+            {categorySpending.length === 0 ? (
+              <div className="py-12 text-center text-secondary text-sm">
+                No expenses recorded this month
               </div>
-              <div className="flex-1 space-y-3">
-                {categorySpending.map(item => {
-                  const catColor = item.categoryColor || '#9ca3af'
-                  return (
-                    <div key={item.categoryId} className="flex items-center gap-3">
-                      <div className="w-3 h-3 rounded-full" style={{ backgroundColor: catColor }} />
-                      <div className="flex-1">
-                        <div className="text-label-sm text-label-sm text-on-surface font-medium">{item.categoryName}</div>
-                        <div className="text-label-sm text-on-surface-variant">
-                          ₹{(item.total / 100).toFixed(0)} ({item.percentage.toFixed(0)}%)
+            ) : (
+              <div className="flex flex-col lg:flex-row lg:items-center gap-6">
+                <div className="flex-1 min-w-[280px]">
+                  <DonutChart data={categorySpending} width={320} height={320} title="" />
+                </div>
+                <div className="flex-1 space-y-3">
+                  {categorySpending.map(item => {
+                    const catColor = item.categoryColor || '#9ca3af'
+                    return (
+                      <div key={item.categoryId} className="flex items-center gap-3">
+                        <div className="w-3 h-3 rounded-full" style={{ backgroundColor: catColor }} />
+                        <div className="flex-1">
+                          <div className="text-label-sm text-label-sm text-on-surface font-medium">{item.categoryName}</div>
+                          <div className="text-label-sm text-on-surface-variant">
+                            ₹{(item.total / 100).toFixed(0)} ({item.percentage.toFixed(0)}%)
+                          </div>
+                        </div>
+                        <div className="text-right text-label-sm font-mono tabular-nums text-on-surface">
+                          -₹{(item.total / 100).toFixed(0)}
                         </div>
                       </div>
-                      <div className="text-right text-label-sm font-mono tabular-nums text-on-surface">
-                        -₹{(item.total / 100).toFixed(0)}
-                      </div>
-                    </div>
-                  )
-                })}
+                    )
+                  })}
+                </div>
               </div>
-            </div>
+            )}
           </CardContent>
         </Card>
       </div>
@@ -351,29 +364,35 @@ export default function Dashboard() {
               <CardSubtitle>Smart suggestions based on your spending</CardSubtitle>
             </CardHeader>
             <CardContent className="p-0 space-y-4">
-              {insights.map(insight => {
-                const iconMap = { alert: AlertCircle, info: Info, success: CheckCircle }
-                const Icon = iconMap[insight.type] || Info
-                const typeConfig = {
-                  warning: { bg: 'bg-amber-50', border: 'border-amber-200', text: 'text-amber-700', dot: 'bg-amber-500' },
-                  info: { bg: 'bg-blue-50', border: 'border-blue-200', text: 'text-blue-700', dot: 'bg-blue-500' },
-                  success: { bg: 'bg-emerald-50', border: 'border-emerald-200', text: 'text-emerald-700', dot: 'bg-emerald-500' },
-                }
-                const config = typeConfig[insight.type] || typeConfig.info
-                return (
-                  <div key={insight.id} className={cn('flex items-start gap-3 p-3 rounded-lg border', config.bg, config.border)}>
-                    <div className="mt-1"><Icon size={18} className={config.text} /></div>
-                    <div className="flex-1">
-                      <div className="text-label-sm font-medium text-on-surface">{insight.title}</div>
-                      <div className="text-body-sm text-on-surface-variant mt-0.5">{insight.description}</div>
-                      <button onClick={() => {}} className="mt-2 inline-flex items-center gap-1 text-xs text-primary font-medium hover:underline">
-                        {insight.action} <ArrowRight size={14} />
-                      </button>
+              {insights.length === 0 ? (
+                <div className="py-8 text-center text-secondary text-sm">
+                  No insights yet. Add transactions to see spending suggestions.
+                </div>
+              ) : (
+                insights.map(insight => {
+                  const iconMap = { alert: AlertCircle, info: Info, success: CheckCircle }
+                  const Icon = iconMap[insight.type] || Info
+                  const typeConfig = {
+                    warning: { bg: 'bg-amber-50', border: 'border-amber-200', text: 'text-amber-700', dot: 'bg-amber-500' },
+                    info: { bg: 'bg-blue-50', border: 'border-blue-200', text: 'text-blue-700', dot: 'bg-blue-500' },
+                    success: { bg: 'bg-emerald-50', border: 'border-emerald-200', text: 'text-emerald-700', dot: 'bg-emerald-500' },
+                  }
+                  const config = typeConfig[insight.type] || typeConfig.info
+                  return (
+                    <div key={insight.id} className={cn('flex items-start gap-3 p-3 rounded-lg border', config.bg, config.border)}>
+                      <div className="mt-1"><Icon size={18} className={config.text} /></div>
+                      <div className="flex-1">
+                        <div className="text-label-sm font-medium text-on-surface">{insight.title}</div>
+                        <div className="text-body-sm text-on-surface-variant mt-0.5">{insight.description}</div>
+                        <button onClick={() => {}} className="mt-2 inline-flex items-center gap-1 text-xs text-primary font-medium hover:underline">
+                          {insight.action} <ArrowRight size={14} />
+                        </button>
+                      </div>
+                      <div className={cn('w-2 h-2 rounded-full', config.dot)} />
                     </div>
-                    <div className={cn('w-2 h-2 rounded-full', config.dot)} />
-                  </div>
-                )
-              })}
+                  )
+                })
+              )}
             </CardContent>
           </Card>
         </div>

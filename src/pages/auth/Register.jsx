@@ -1,10 +1,11 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Mail, User, Lock, ArrowRight } from 'lucide-react'
 import { Button } from '../../components/ui/Button'
 import { Input } from '../../components/ui/Input'
 import { Select } from '../../components/ui/Select'
 import { Card } from '../../components/ui/Card'
+import { useAuth } from '../../context/AuthContext'
 
 export default function Register() {
   const [form, setForm] = useState({
@@ -18,6 +19,13 @@ export default function Register() {
   const [error, setError] = useState(null)
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
+  const { user, register } = useAuth()
+
+  useEffect(() => {
+    if (user) {
+      navigate('/dashboard', { replace: true })
+    }
+  }, [user, navigate])
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -28,8 +36,12 @@ export default function Register() {
     }
     setLoading(true)
     try {
-      await new Promise(r => setTimeout(r, 800))
-      navigate('/dashboard')
+      const res = await register(form)
+      if (res?.success) {
+        navigate('/dashboard')
+      } else {
+        setError(res?.error || 'Registration failed')
+      }
     } catch (err) {
       setError(err.message || 'Registration failed')
     } finally {
@@ -65,7 +77,7 @@ export default function Register() {
               label="Full Name"
               value={form.name}
               onChange={e => setForm(prev => ({ ...prev, name: e.target.value }))}
-              placeholder="Yuvraj"
+              placeholder="Your name"
               required
             />
             <Input

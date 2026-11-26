@@ -1,32 +1,59 @@
 import { useState } from 'react'
-import { Check, RotateCcw } from 'lucide-react'
+import { Check } from 'lucide-react'
 import { Button } from '../components/ui/Button'
 import { Card } from '../components/ui/Card'
-import { useDemoMode } from '../context/DemoContext'
+import { useAuth } from '../context/AuthContext'
 
 export default function Settings() {
-  const { resetDemoData, demoMode, toggleDemoMode } = useDemoMode()
+  const { user, updateProfile } = useAuth()
   const [saved, setSaved] = useState(false)
+  const [fullName, setFullName] = useState(() => {
+    return user?.user_metadata?.full_name || user?.full_name || user?.name || ''
+  })
   const [currency, setCurrency] = useState(() => localStorage.getItem('paisapilot_currency') || 'INR')
   const [timezone, setTimezone] = useState(() => localStorage.getItem('paisapilot_timezone') || 'Asia/Kolkata')
+
   const save = () => {
     localStorage.setItem('paisapilot_currency', currency)
     localStorage.setItem('paisapilot_timezone', timezone)
+    if (fullName && updateProfile) {
+      updateProfile({
+        name: fullName,
+        full_name: fullName,
+        user_metadata: { full_name: fullName },
+      })
+    }
     setSaved(true)
     setTimeout(() => setSaved(false), 1800)
   }
+
   return (
     <div className="space-y-6">
-      <div><p className="text-label-sm uppercase tracking-wider text-primary">Workspace</p><h1 className="headline-lg text-on-surface font-semibold">Settings</h1><p className="body-md text-secondary">Manage preferences for your PaisaPilot demo workspace.</p></div>
-      <Card className="max-w-2xl"><h2 className="headline-md text-on-surface font-semibold">Preferences</h2>
+      <div>
+        <p className="text-label-sm uppercase tracking-wider text-primary">Account</p>
+        <h1 className="headline-lg text-on-surface font-semibold">Settings</h1>
+        <p className="body-md text-secondary">Manage your profile and account preferences.</p>
+      </div>
+      <Card className="max-w-2xl">
+        <h2 className="headline-md text-on-surface font-semibold mb-4">Profile & Preferences</h2>
 
         <div className="space-y-4">
+          <div className="p-4 bg-surface-container-low rounded-lg border border-outline/30">
+            <label className="block text-label-sm text-on-surface font-medium mb-1">Full Name / Username</label>
+            <input
+              type="text"
+              value={fullName}
+              onChange={e => setFullName(e.target.value)}
+              placeholder="Your full name"
+              className="w-full px-3 py-2 bg-surface-container-lowest border border-outline/30 rounded-lg text-on-surface text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none"
+            />
+          </div>
+
           <div className="flex items-center justify-between p-4 bg-surface-container-low rounded-lg border border-outline/30">
             <div>
-              <p className="text-label-sm text-label-sm text-on-surface font-medium">Demo Mode</p>
-              <p className="text-xs text-on-surface-variant">Using demonstration data. Reset to start fresh.</p>
+              <p className="text-label-sm text-label-sm text-on-surface font-medium">Email</p>
+              <p className="text-xs text-on-surface-variant">{user?.email || 'Not provided'}</p>
             </div>
-            <Button variant="secondary" onClick={resetDemoData}><RotateCcw size={15} /> Reset</Button>
           </div>
 
           <div className="flex items-center justify-between p-4 bg-surface-container-low rounded-lg border border-outline/30">
@@ -49,11 +76,12 @@ export default function Settings() {
               <option>Asia/Kolkata</option>
             </select>
           </div>
-          <div className="mt-5 flex items-center justify-between border-t border-outline/30 pt-5">
-            <div><p className="font-medium">Demo mode</p><p className="text-xs text-secondary">Use local demonstration records while presenting.</p></div>
-            <button type="button" onClick={toggleDemoMode} aria-pressed={demoMode} className={`h-6 w-11 rounded-full p-1 transition-colors ${demoMode ? 'bg-primary' : 'bg-outline-variant'}`}><span className={`block h-4 w-4 rounded-full bg-white transition-transform ${demoMode ? 'translate-x-5' : ''}`} /></button>
+
+          <div className="mt-6 flex justify-end">
+            <Button onClick={save}>
+              {saved ? <><Check size={15} /> Saved</> : 'Save preferences'}
+            </Button>
           </div>
-          <div className="mt-6 flex justify-end"><Button onClick={save}>{saved ? <><Check size={15} /> Saved</> : 'Save preferences'}</Button></div>
         </div>
       </Card>
     </div>

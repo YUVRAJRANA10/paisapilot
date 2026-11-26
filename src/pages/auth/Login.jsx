@@ -1,10 +1,11 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Lock, Mail, User, ArrowRight } from 'lucide-react'
 import { Button } from '../../components/ui/Button'
 import { Input } from '../../components/ui/Input'
 import { Card } from '../../components/ui/Card'
 import { useDemoMode } from '../../context/DemoContext'
+import { useAuth } from '../../context/AuthContext'
 
 export default function Login() {
   const [email, setEmail] = useState('')
@@ -13,16 +14,25 @@ export default function Login() {
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
   const { demoMode, resetDemoData } = useDemoMode()
+  const { user, login } = useAuth()
+
+  useEffect(() => {
+    if (user) {
+      navigate('/dashboard', { replace: true })
+    }
+  }, [user, navigate])
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError(null)
     setLoading(true)
     try {
-      // Simulate auth delay
-      await new Promise(r => setTimeout(r, 800))
-      // Demo: accept any credentials
-      navigate('/dashboard')
+      const res = await login(email, password)
+      if (res?.success) {
+        navigate('/dashboard')
+      } else {
+        setError(res?.error || 'Login failed')
+      }
     } catch (err) {
       setError(err.message || 'Login failed')
     } finally {

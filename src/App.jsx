@@ -12,7 +12,11 @@ import { ProtectedRoute } from './routes/ProtectedRoute'
 const router = createBrowserRouter([
   {
     path: '/',
-    element: <PageLayout />,
+    element: (
+      <ProtectedRoute>
+        <PageLayout />
+      </ProtectedRoute>
+    ),
     children: [
       { index: true, element: <Dashboard /> },
       { path: 'dashboard', element: <Dashboard /> },

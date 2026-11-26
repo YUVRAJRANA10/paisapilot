@@ -51,14 +51,7 @@ export const CHART_COLORS = [
   '#06b6d4', // cyan
 ]
 
-export const DEMO_USER = {
-  id: 'user-demo',
-  name: 'Yuvraj',
-  email: 'yuvraj@demo.paisapilot.app',
-  currency: 'INR',
-  monthlyIncome: 85000,
-  timezone: 'Asia/Kolkata',
-}
+export const DEMO_USER = null
 
 export const PERIOD_OPTIONS = [
   { value: 'current-month', label: 'Current Month' },

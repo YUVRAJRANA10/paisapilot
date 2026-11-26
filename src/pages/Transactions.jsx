@@ -7,12 +7,12 @@ import { Select } from '../components/ui/Select'
 import { Table } from '../components/ui/Table'
 import { TransactionForm } from '../components/forms/TransactionForm'
 import { demoAdapter } from '../services/demoAdapter'
-import { DEMO_CATEGORIES } from '../services/demoData'
 import { formatINR, formatShortDate } from '../utils/format'
 import { cn } from '../utils/cn'
 
 export default function Transactions() {
   const [transactions, setTransactions] = useState([])
+  const [categories, setCategories] = useState([])
   const [query, setQuery] = useState('')
   const [type, setType] = useState('')
   const [category, setCategory] = useState('')
@@ -39,7 +39,13 @@ export default function Transactions() {
     }
   }, [type, category, from, to])
 
-  useEffect(() => { loadTransactions() }, [loadTransactions])
+  useEffect(() => {
+    loadTransactions()
+  }, [loadTransactions])
+
+  useEffect(() => {
+    demoAdapter.getCategories().then(res => setCategories(res.categories || []))
+  }, [])
 
   const visibleTransactions = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase()
@@ -60,6 +66,7 @@ export default function Transactions() {
     setShowAddModal(false)
     setEditingTransaction(null)
     loadTransactions()
+    demoAdapter.getCategories().then(res => setCategories(res.categories || []))
   }
 
   const handleDelete = async transaction => {
@@ -79,7 +86,19 @@ export default function Transactions() {
         </div>
       ),
     },
-    { key: 'categoryName', label: 'Category' },
+    {
+      key: 'categoryName',
+      label: 'Category',
+      render: transaction => (
+        <div className="flex items-center gap-2">
+          <span
+            className="w-2 h-2 rounded-full shrink-0"
+            style={{ backgroundColor: transaction.categoryColor || '#9ca3af' }}
+          />
+          <span>{transaction.categoryName || 'Unknown'}</span>
+        </div>
+      ),
+    },
     { key: 'date', label: 'Date', render: transaction => formatShortDate(transaction.date) },
     { key: 'paymentMode', label: 'Method' },
     {
@@ -153,7 +172,7 @@ export default function Transactions() {
               { value: 'income', label: 'Income' }, { value: 'expense', label: 'Expense' },
             ]} />
             <Select label="Category" value={category} onChange={setCategory} placeholder="All categories"
-              options={DEMO_CATEGORIES.map(item => ({ value: item.id, label: item.name }))} />
+              options={categories.map(item => ({ value: item.id, label: item.name }))} />
             <label className="flex flex-col gap-2 text-label-sm uppercase tracking-wider text-secondary">
               From
               <input aria-label="Filter from date" type="date" value={from} onChange={event => setFrom(event.target.value)} className="input-base" />

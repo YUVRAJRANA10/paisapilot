@@ -308,14 +308,7 @@ export const DEMO_CATEGORIES = [
 
 export function getDemoState() {
   return {
-    user: {
-      id: 'user-demo',
-      name: 'Yuvraj',
-      email: 'yuvraj@demo.paisapilot.app',
-      currency: 'INR',
-      monthlyIncome: 8500000,
-      timezone: 'Asia/Kolkata',
-    },
+    user: null,
     transactions: DEMO_TRANSACTIONS,
     categories: DEMO_CATEGORIES,
     budgets: DEMO_BUDGETS,
