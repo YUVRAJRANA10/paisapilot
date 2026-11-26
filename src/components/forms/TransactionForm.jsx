@@ -9,6 +9,7 @@ import { TRANSACTION_TYPES, PAYMENT_MODES, RECURRENCE_FREQUENCIES } from '../../
 import { parseINRString } from '../../utils/format'
 import { transactionSchema } from '../../utils/validation'
 import { demoAdapter } from '../../services/demoAdapter'
+import { realAdapter } from '../../services/realAdapter'
 
 const getDefaultDateTime = () => {
   const now = new Date()
@@ -17,8 +18,8 @@ const getDefaultDateTime = () => {
   return local.toISOString().slice(0, 16)
 }
 
-export function TransactionForm({ isOpen, onClose, onSave, transaction = null }) {
-  const [categories, setCategories] = useState([])
+export function TransactionForm({ isOpen, onClose, onSave, transaction = null, categories: initialCategories = [] }) {
+  const [categories, setCategories] = useState(initialCategories)
   const [isAddingCustom, setIsAddingCustom] = useState(false)
   const [customCategoryName, setCustomCategoryName] = useState('')
   const [isCreatingCategory, setIsCreatingCategory] = useState(false)
@@ -39,9 +40,18 @@ export function TransactionForm({ isOpen, onClose, onSave, transaction = null })
 
   useEffect(() => {
     if (!isOpen) return
-    demoAdapter.getCategories().then(res => {
-      setCategories(res.categories || [])
-    })
+
+    if (initialCategories && initialCategories.length > 0) {
+      setCategories(initialCategories)
+    } else {
+      const getCats = (demoAdapter && demoAdapter.getCategories) || (realAdapter && realAdapter.getCategories)
+      if (getCats) {
+        getCats().then(res => {
+          if (res?.categories) setCategories(res.categories)
+        }).catch(() => {})
+      }
+    }
+
     setForm({
       type: transaction?.type || 'expense',
       amount: transaction ? String(transaction.amount / 100) : '',
@@ -55,7 +65,7 @@ export function TransactionForm({ isOpen, onClose, onSave, transaction = null })
     setIsAddingCustom(false)
     setCustomCategoryName('')
     setErrors({})
-  }, [isOpen, transaction])
+  }, [isOpen, transaction, initialCategories])
 
   const handleTypeChange = (type) => {
     setForm(prev => ({ ...prev, type }))
@@ -66,17 +76,21 @@ export function TransactionForm({ isOpen, onClose, onSave, transaction = null })
     if (!trimmed) return
     setIsCreatingCategory(true)
     try {
-      const res = await demoAdapter.createCategory({ name: trimmed })
-      if (res?.category) {
+      const createFn = (demoAdapter && demoAdapter.createCategory) || (realAdapter && realAdapter.createCategory)
+      const res = await createFn({ name: trimmed })
+      const created = res?.category || res
+      if (created) {
         setCategories(prev => {
-          if (prev.some(c => c.id === res.category.id)) return prev
-          return [...prev, res.category]
+          if (prev.some(c => c.id === created.id)) return prev
+          return [...prev, created]
         })
-        setForm(prev => ({ ...prev, categoryId: res.category.id }))
+        setForm(prev => ({ ...prev, categoryId: created.id }))
         setIsAddingCustom(false)
         setCustomCategoryName('')
         setErrors(prev => ({ ...prev, categoryId: undefined }))
       }
+    } catch (err) {
+      setErrors(prev => ({ ...prev, categoryId: err.message || 'Failed to create category' }))
     } finally {
       setIsCreatingCategory(false)
     }
@@ -84,18 +98,23 @@ export function TransactionForm({ isOpen, onClose, onSave, transaction = null })
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+
     let currentCategoryId = form.categoryId
     if (isAddingCustom && customCategoryName.trim()) {
       try {
-        const res = await demoAdapter.createCategory({ name: customCategoryName.trim() })
-        if (res?.category) {
-          currentCategoryId = res.category.id
-          setCategories(prev => [...prev, res.category])
-          setForm(prev => ({ ...prev, categoryId: res.category.id }))
+        const createFn = (demoAdapter && demoAdapter.createCategory) || (realAdapter && realAdapter.createCategory)
+        const res = await createFn({ name: customCategoryName.trim() })
+        const created = res?.category || res
+        if (created) {
+          currentCategoryId = created.id
+          setCategories(prev => [...prev, created])
+          setForm(prev => ({ ...prev, categoryId: created.id }))
           setIsAddingCustom(false)
           setCustomCategoryName('')
         }
-      } catch (err) {}
+      } catch (err) {
+        // continue with validation
+      }
     }
 
     const newErrors = {}
@@ -175,41 +194,52 @@ export function TransactionForm({ isOpen, onClose, onSave, transaction = null })
             <label className="font-label-sm text-label-sm uppercase tracking-wider text-secondary">
               New Category Name
             </label>
-            <div className="flex gap-2">
-              <Input
+            <div className="flex items-center gap-2">
+              <input
+                type="text"
                 value={customCategoryName}
                 onChange={e => setCustomCategoryName(e.target.value)}
-                placeholder="e.g. Subscriptions, Books..."
-                className="flex-1"
+                placeholder="e.g. Pet Care, Gaming"
+                className="flex-1 px-3 py-2 text-sm bg-surface border border-outline rounded-lg text-on-surface focus:outline-none focus:border-primary"
                 autoFocus
+                onKeyDown={e => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault()
+                    handleCreateCustomCategory()
+                  }
+                }}
               />
-              <Button
+              <button
                 type="button"
-                variant="primary"
+                disabled={isCreatingCategory || !customCategoryName.trim()}
                 onClick={handleCreateCustomCategory}
-                disabled={!customCategoryName.trim() || isCreatingCategory}
+                className="p-2 text-primary hover:bg-primary/10 rounded-lg disabled:opacity-50"
+                title="Save Category"
               >
-                Add
-              </Button>
-              <Button
+                <Check size={18} />
+              </button>
+              <button
                 type="button"
-                variant="ghost"
                 onClick={() => {
                   setIsAddingCustom(false)
                   setCustomCategoryName('')
                 }}
+                className="p-2 text-secondary hover:bg-surface-container-high rounded-lg"
+                title="Cancel"
               >
-                Cancel
-              </Button>
+                <X size={18} />
+              </button>
             </div>
-            {errors.categoryId && <span className="text-error text-label-sm">{errors.categoryId}</span>}
+            {errors.categoryId && (
+              <p className="text-body-sm text-error">{errors.categoryId}</p>
+            )}
           </div>
         ) : (
           <Select
             label="Category"
             options={[
               ...categories.map(c => ({ value: c.id, label: c.name })),
-              { value: '__custom__', label: '+ Add custom category...' },
+              { value: '__custom__', label: '+ Add custom category...' }
             ]}
             value={form.categoryId}
             onChange={v => {

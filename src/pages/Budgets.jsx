@@ -7,7 +7,11 @@ import { Input } from '../components/ui/Input'
 import { Modal } from '../components/ui/Modal'
 import { Select } from '../components/ui/Select'
 import { demoAdapter } from '../services/demoAdapter'
+import { realAdapter } from '../services/realAdapter'
 import { calculatePercentage, formatINR } from '../utils/format'
+
+const CURRENT_MONTH = new Date().toISOString().slice(0, 7)
+const CURRENT_MONTH_LABEL = new Date().toLocaleDateString('en-IN', { month: 'long', year: 'numeric' })
 
 const getCurrentMonthStr = () => {
   const now = new Date()
@@ -25,18 +29,25 @@ export default function Budgets() {
   const [isAddingCustom, setIsAddingCustom] = useState(false)
   const [customCategoryName, setCustomCategoryName] = useState('')
   const [isCreatingCategory, setIsCreatingCategory] = useState(false)
+  const [saving, setSaving] = useState(false)
   const currentMonth = getCurrentMonthStr()
 
   const loadBudgets = () => {
-    demoAdapter.getBudgets({ month: currentMonth }).then(result => {
-      setBudgets(result.budgets || [])
-    })
+    const fetchBudgets = (demoAdapter && demoAdapter.getBudgets) || (realAdapter && realAdapter.getBudgets)
+    if (fetchBudgets) {
+      fetchBudgets({ month: currentMonth }).then(result => {
+        setBudgets(result.budgets || [])
+      }).catch(() => {})
+    }
   }
 
   const loadCategories = () => {
-    demoAdapter.getCategories().then(result => {
-      setCategories(result.categories || [])
-    })
+    const fetchCats = (demoAdapter && demoAdapter.getCategories) || (realAdapter && realAdapter.getCategories)
+    if (fetchCats) {
+      fetchCats().then(result => {
+        setCategories(result.categories || [])
+      }).catch(() => {})
+    }
   }
 
   useEffect(() => {
@@ -47,13 +58,26 @@ export default function Budgets() {
   const handleSaveInline = async (budget) => {
     const limitRupees = parseFloat(editLimit) || 0
     const limitPaise = Math.max(0, Math.round(limitRupees * 100))
-    await demoAdapter.updateBudget(budget.id, {
-      ...budget,
-      limit: limitPaise,
-      month: currentMonth,
-    })
-    setBudgets(prev => prev.map(b => (b.id === budget.id ? { ...b, limit: limitPaise } : b)))
-    setEditingId(null)
+    setSaving(true)
+    try {
+      if (demoAdapter?.updateBudget) {
+        await demoAdapter.updateBudget(budget.id || budget.categoryId, {
+          ...budget,
+          limit: limitPaise,
+          limitPaise,
+          month: currentMonth,
+        })
+      } else if (realAdapter?.updateBudget) {
+        await realAdapter.updateBudget(budget.categoryId || budget.id, {
+          limitPaise,
+          month: currentMonth,
+        })
+      }
+      setBudgets(prev => prev.map(b => (b.id === budget.id ? { ...b, limit: limitPaise } : b)))
+      setEditingId(null)
+    } finally {
+      setSaving(false)
+    }
   }
 
   const handleCreateCustomCategory = async () => {
@@ -61,13 +85,15 @@ export default function Budgets() {
     if (!trimmed) return
     setIsCreatingCategory(true)
     try {
-      const res = await demoAdapter.createCategory({ name: trimmed })
-      if (res?.category) {
+      const createFn = (demoAdapter && demoAdapter.createCategory) || (realAdapter && realAdapter.createCategory)
+      const res = await createFn({ name: trimmed })
+      const created = res?.category || res
+      if (created) {
         setCategories(prev => {
-          if (prev.some(c => c.id === res.category.id)) return prev
-          return [...prev, res.category]
+          if (prev.some(c => c.id === created.id)) return prev
+          return [...prev, created]
         })
-        setModalCategory(res.category.id)
+        setModalCategory(created.id)
         setIsAddingCustom(false)
         setCustomCategoryName('')
       }
@@ -82,13 +108,15 @@ export default function Budgets() {
     let cat = categories.find(c => c.id === catId)
     if (isAddingCustom && customCategoryName.trim()) {
       try {
-        const res = await demoAdapter.createCategory({ name: customCategoryName.trim() })
-        if (res?.category) {
-          catId = res.category.id
-          cat = res.category
+        const createFn = (demoAdapter && demoAdapter.createCategory) || (realAdapter && realAdapter.createCategory)
+        const res = await createFn({ name: customCategoryName.trim() })
+        const created = res?.category || res
+        if (created) {
+          catId = created.id
+          cat = created
           setCategories(prev => {
-            if (prev.some(c => c.id === res.category.id)) return prev
-            return [...prev, res.category]
+            if (prev.some(c => c.id === created.id)) return prev
+            return [...prev, created]
           })
           setIsAddingCustom(false)
           setCustomCategoryName('')
@@ -99,25 +127,36 @@ export default function Budgets() {
     const limitRupees = parseFloat(modalLimit) || 0
     const limitPaise = Math.max(0, Math.round(limitRupees * 100))
 
-    await demoAdapter.createBudget({
-      categoryId: catId,
-      categoryName: cat ? cat.name : 'Unknown',
-      categoryColor: cat ? cat.color : '#9ca3af',
-      limit: limitPaise,
-      month: currentMonth,
-    })
-
-    const res = await demoAdapter.getBudgets({ month: currentMonth })
-    setBudgets(res.budgets || [])
-    setIsModalOpen(false)
-    setModalCategory('')
-    setModalLimit('')
-    setIsAddingCustom(false)
-    setCustomCategoryName('')
+    setSaving(true)
+    try {
+      if (demoAdapter?.createBudget) {
+        await demoAdapter.createBudget({
+          categoryId: catId,
+          categoryName: cat ? cat.name : 'Unknown',
+          categoryColor: cat ? cat.color : '#9ca3af',
+          limit: limitPaise,
+          limitPaise,
+          month: currentMonth,
+        })
+      } else if (realAdapter?.updateBudget) {
+        await realAdapter.updateBudget(catId, {
+          limitPaise,
+          month: CURRENT_MONTH,
+        })
+      }
+      loadBudgets()
+      setIsModalOpen(false)
+      setModalCategory('')
+      setModalLimit('')
+      setIsAddingCustom(false)
+      setCustomCategoryName('')
+    } finally {
+      setSaving(false)
+    }
   }
 
-  const totalLimit = budgets.reduce((sum, budget) => sum + budget.limit, 0)
-  const totalUsed = budgets.reduce((sum, budget) => sum + budget.used, 0)
+  const totalLimit = budgets.reduce((sum, budget) => sum + (budget.limit || 0), 0)
+  const totalUsed = budgets.reduce((sum, budget) => sum + (budget.used || 0), 0)
   const overallPct = totalLimit > 0 ? Math.round((totalUsed / totalLimit) * 100) : 0
 
   return (
@@ -126,7 +165,7 @@ export default function Budgets() {
         <div>
           <p className="text-label-sm uppercase tracking-wider text-primary">Control center</p>
           <h1 className="headline-lg text-on-surface font-semibold">Monthly budgets</h1>
-          <p className="body-md text-secondary">Keep category spending aligned with your monthly plan.</p>
+          <p className="body-md text-secondary">Keep category spending aligned with your {CURRENT_MONTH_LABEL} plan.</p>
         </div>
         <div className="flex items-center gap-3">
           <Button variant="primary" onClick={() => { setIsModalOpen(true); setIsAddingCustom(false); setCustomCategoryName('') }}>
@@ -203,42 +242,43 @@ export default function Budgets() {
                   <div className="mb-2 flex justify-between text-sm items-center">
                     <span>{formatINR(budget.used)} spent</span>
                     {isEditing ? (
-                      <form
-                        onSubmit={e => {
-                          e.preventDefault()
-                          handleSaveInline(budget)
-                        }}
-                        className="flex items-center gap-1"
-                      >
-                        <span className="text-xs text-secondary font-medium">₹</span>
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-secondary font-medium">of ₹</span>
                         <input
                           type="number"
                           min="0"
                           step="100"
                           value={editLimit}
                           onChange={e => setEditLimit(e.target.value)}
-                          className="w-24 px-2 py-0.5 text-xs bg-surface-container-low border border-primary rounded font-mono text-on-surface focus:outline-none"
-                          placeholder="0"
+                          className="w-24 px-1.5 py-0.5 text-sm bg-surface border border-primary rounded text-on-surface font-medium focus:outline-none"
                           autoFocus
+                          onKeyDown={e => {
+                            if (e.key === 'Enter') {
+                              e.preventDefault()
+                              handleSaveInline(budget)
+                            } else if (e.key === 'Escape') {
+                              setEditingId(null)
+                            }
+                          }}
                         />
                         <button
-                          type="submit"
-                          className="p-1 rounded bg-primary text-white hover:bg-primary-container transition-colors"
+                          onClick={() => handleSaveInline(budget)}
+                          disabled={saving}
+                          className="p-1 text-emerald-600 hover:bg-emerald-50 rounded"
                           title="Save limit"
                         >
-                          <Check size={13} />
+                          <Check size={14} />
                         </button>
                         <button
-                          type="button"
                           onClick={() => setEditingId(null)}
-                          className="p-1 rounded text-secondary hover:bg-surface-container-high transition-colors"
+                          className="p-1 text-secondary hover:bg-surface-container-high rounded"
                           title="Cancel"
                         >
-                          <X size={13} />
+                          <X size={14} />
                         </button>
-                      </form>
+                      </div>
                     ) : (
-                      <div className="flex items-center gap-1.5">
+                      <div className="flex items-center gap-1">
                         <span className="text-secondary font-medium">of {formatINR(budget.limit)}</span>
                         <button
                           onClick={() => {
@@ -345,6 +385,7 @@ export default function Budgets() {
               required
             />
           )}
+
           <Input
             label="Monthly Limit (₹)"
             type="number"
@@ -355,11 +396,12 @@ export default function Budgets() {
             placeholder="e.g. 5000"
             required
           />
+
           <div className="flex items-center justify-end gap-3 pt-4 border-t border-outline/30">
             <Button type="button" variant="ghost" onClick={() => setIsModalOpen(false)}>
               Cancel
             </Button>
-            <Button type="submit" variant="primary">
+            <Button type="submit" variant="primary" loading={saving}>
               Save Budget
             </Button>
           </div>

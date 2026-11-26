@@ -1,6 +1,25 @@
 # PaisaPilot Project Progress
 
-Last reviewed: 2026-11-24
+Last reviewed: 2026-11-26
+
+## Phase 7.6 Teammate PR Integration and Hardening Milestone
+
+Safely integrated changes from teammate branches `test/devyash-backend-tests` and `routes-and-database-wiring` without regressing the production architecture.
+
+### Implemented
+
+- Merged Devyash's comprehensive backend test suite (`backend/tests/auth.test.js` and `backend/tests/health.test.js`) bringing test suite to 30 tests.
+- Ported inline budget limit editing with pencil icon, modal budget setup, and custom category creation in `src/pages/Budgets.jsx` safely wired to `realAdapter`.
+- Added on-the-fly custom category creation in `src/components/forms/TransactionForm.jsx` wired to `realAdapter.createCategory`, with local datetime detection and schema-compliant payment mode enums.
+- Added user display name utility `src/utils/user.js`.
+- Created robust MongoDB seed script `backend/src/scripts/seed.js` using Argon2id password hashing, integer paise amounts, and Mongoose schemas.
+- Prevented critical regressions from raw merge: avoided reverting `realAdapter` to `demoAdapter`, protected `app.test.js`, maintained HttpOnly cookie authentication, and preserved gross income calculations.
+
+### Verification
+
+- `npm run test:backend`: 30/30 tests passed.
+- `npm run build`: passed without errors.
+- `git diff --check`: passed.
 
 ## Phase 7.5 MongoDB aggregation ObjectId and category name bugfix
 
