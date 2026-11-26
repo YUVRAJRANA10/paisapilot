@@ -8,13 +8,25 @@ import { cn } from '../../utils/cn'
 import { TRANSACTION_TYPES, RECURRENCE_FREQUENCIES } from '../../utils/constants'
 import { parseINRString } from '../../utils/format'
 import { transactionSchema } from '../../utils/validation'
+import { realAdapter } from '../../services/realAdapter'
 
-export function TransactionForm({ isOpen, onClose, onSave, transaction = null, categories = [] }) {
+const getDefaultDateTime = () => {
+  const now = new Date()
+  const offset = now.getTimezoneOffset()
+  const local = new Date(now.getTime() - offset * 60000)
+  return local.toISOString().slice(0, 16)
+}
+
+export function TransactionForm({ isOpen, onClose, onSave, transaction = null, categories: initialCategories = [] }) {
+  const [categories, setCategories] = useState(initialCategories)
+  const [isAddingCustom, setIsAddingCustom] = useState(false)
+  const [customCategoryName, setCustomCategoryName] = useState('')
+  const [isCreatingCategory, setIsCreatingCategory] = useState(false)
   const [form, setForm] = useState({
     type: 'expense',
     amount: '',
     categoryId: '',
-    date: `${new Date().toISOString().slice(0, 10)}T12:00`,
+    date: getDefaultDateTime(),
     paymentMode: 'upi',
     note: '',
     isRecurring: false,
@@ -27,31 +39,84 @@ export function TransactionForm({ isOpen, onClose, onSave, transaction = null, c
 
   useEffect(() => {
     if (!isOpen) return
+
+    if (initialCategories && initialCategories.length > 0) {
+      setCategories(initialCategories)
+    } else {
+      realAdapter.getCategories().then(res => {
+        if (res?.categories) setCategories(res.categories)
+      }).catch(() => {})
+    }
+
     setForm({
       type: transaction?.type || 'expense',
       amount: transaction ? String(transaction.amount / 100) : '',
       categoryId: transaction?.categoryId || '',
-      date: transaction?.date ? transaction.date.slice(0, 16) : `${new Date().toISOString().slice(0, 10)}T12:00`,
+      date: transaction?.date ? transaction.date.slice(0, 16) : getDefaultDateTime(),
       paymentMode: transaction?.paymentMode || 'upi',
       note: transaction?.note || '',
       isRecurring: transaction?.isRecurring || false,
       recurrence: transaction?.recurrence || { frequency: 'monthly', interval: 1 },
     })
+    setIsAddingCustom(false)
+    setCustomCategoryName('')
     setErrors({})
-  }, [isOpen, transaction])
+  }, [isOpen, transaction, initialCategories])
 
   const handleTypeChange = (type) => {
     setForm(prev => ({ ...prev, type }))
   }
 
-  const handleSubmit = (e) => {
+  const handleCreateCustomCategory = async () => {
+    const trimmed = customCategoryName.trim()
+    if (!trimmed) return
+    setIsCreatingCategory(true)
+    try {
+      const res = await realAdapter.createCategory({ name: trimmed })
+      const created = res?.category || res
+      if (created) {
+        setCategories(prev => {
+          if (prev.some(c => c.id === created.id)) return prev
+          return [...prev, created]
+        })
+        setForm(prev => ({ ...prev, categoryId: created.id }))
+        setIsAddingCustom(false)
+        setCustomCategoryName('')
+        setErrors(prev => ({ ...prev, categoryId: undefined }))
+      }
+    } catch (err) {
+      setErrors(prev => ({ ...prev, categoryId: err.message || 'Failed to create category' }))
+    } finally {
+      setIsCreatingCategory(false)
+    }
+  }
+
+  const handleSubmit = async (e) => {
     e.preventDefault()
+
+    let currentCategoryId = form.categoryId
+    if (isAddingCustom && customCategoryName.trim()) {
+      try {
+        const res = await realAdapter.createCategory({ name: customCategoryName.trim() })
+        const created = res?.category || res
+        if (created) {
+          currentCategoryId = created.id
+          setCategories(prev => [...prev, created])
+          setForm(prev => ({ ...prev, categoryId: created.id }))
+          setIsAddingCustom(false)
+          setCustomCategoryName('')
+        }
+      } catch (err) {
+        // continue with validation
+      }
+    }
+
     const newErrors = {}
     if (!form.type) newErrors.type = 'Type is required'
     if (!/^\d+(\.\d{1,2})?$/.test(form.amount.trim()) || parseINRString(form.amount) <= 0) {
       newErrors.amount = 'Enter a positive amount with up to two decimals'
     }
-    if (!form.categoryId) newErrors.categoryId = 'Category is required'
+    if (!currentCategoryId) newErrors.categoryId = 'Category is required'
     if (!form.date || Number.isNaN(new Date(form.date).getTime())) newErrors.date = 'Valid date is required'
     if (!form.paymentMode) newErrors.paymentMode = 'Payment mode is required'
 
@@ -59,7 +124,7 @@ export function TransactionForm({ isOpen, onClose, onSave, transaction = null, c
       id: transaction?.id,
       type: form.type,
       amount: parseINRString(form.amount),
-      categoryId: form.categoryId,
+      categoryId: currentCategoryId,
       date: form.date,
       paymentMode: form.paymentMode,
       note: form.note.trim(),
@@ -118,14 +183,60 @@ export function TransactionForm({ isOpen, onClose, onSave, transaction = null, c
           placeholder="0.00"
         />
 
-        <Select
-          label="Category"
-          options={categories.map(c => ({ value: c.id, label: c.name }))}
-          value={form.categoryId}
-          onChange={v => setForm(prev => ({ ...prev, categoryId: v }))}
-          placeholder="Select category"
-          error={errors.categoryId}
-        />
+        {isAddingCustom ? (
+          <div className="space-y-1.5">
+            <label className="font-label-sm text-label-sm uppercase tracking-wider text-secondary">
+              New Category Name
+            </label>
+            <div className="flex gap-2">
+              <Input
+                value={customCategoryName}
+                onChange={e => setCustomCategoryName(e.target.value)}
+                placeholder="e.g. Subscriptions, Books..."
+                className="flex-1"
+                autoFocus
+              />
+              <Button
+                type="button"
+                variant="primary"
+                onClick={handleCreateCustomCategory}
+                disabled={!customCategoryName.trim() || isCreatingCategory}
+              >
+                Add
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => {
+                  setIsAddingCustom(false)
+                  setCustomCategoryName('')
+                }}
+              >
+                Cancel
+              </Button>
+            </div>
+            {errors.categoryId && <span className="text-error text-label-sm">{errors.categoryId}</span>}
+          </div>
+        ) : (
+          <Select
+            label="Category"
+            options={[
+              ...categories.map(c => ({ value: c.id, label: c.name })),
+              { value: '__custom__', label: '+ Add custom category...' },
+            ]}
+            value={form.categoryId}
+            onChange={v => {
+              if (v === '__custom__') {
+                setIsAddingCustom(true)
+              } else {
+                setForm(prev => ({ ...prev, categoryId: v }))
+                setErrors(prev => ({ ...prev, categoryId: undefined }))
+              }
+            }}
+            placeholder="Select category"
+            error={errors.categoryId}
+          />
+        )}
 
         <div className="grid grid-cols-2 gap-4">
           <Input
@@ -141,7 +252,7 @@ export function TransactionForm({ isOpen, onClose, onSave, transaction = null, c
             options={[
               { value: 'upi', label: 'UPI' },
               { value: 'card', label: 'Card' },
-              { value: 'bank_transfer', label: 'Bank transfer' },
+              { value: 'bank_transfer', label: 'Bank Transfer' },
               { value: 'cash', label: 'Cash' },
               { value: 'other', label: 'Other' },
             ]}
