@@ -17,7 +17,6 @@ export const PAYMENT_MODES = [
 ]
 
 export const RECURRENCE_FREQUENCIES = [
-  { value: 'daily', label: 'Daily' },
   { value: 'weekly', label: 'Weekly' },
   { value: 'monthly', label: 'Monthly' },
   { value: 'yearly', label: 'Yearly' },

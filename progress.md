@@ -1,6 +1,269 @@
 # PaisaPilot Project Progress
 
-Last reviewed: 2026-10-27
+Last reviewed: 2026-11-24
+
+## Phase 7.5 MongoDB aggregation ObjectId and category name bugfix
+
+Fixed a critical data mismatch where MongoDB aggregation pipelines in `reportService` and `budgetService` received a string `userId` from auth instead of a MongoDB `ObjectId`, causing all aggregation queries to return zero results regardless of saved transactions. Also populated category names in transaction listings.
+
+### Implemented
+
+- Added `toObjectId` conversion in `reportService` and `budgetService` aggregation pipelines so `$match: { userId }` matches the stored BSON `ObjectId`.
+- Populated `categoryId` in `transactionService.list`, `create`, and `update` so `categoryName` and `categoryColor` are populated in the transactions table.
+- Verified live that the user's ₹1,000 Grocery expense now correctly updates:
+  - Dashboard Monthly Expenses (₹1,000)
+  - Total Balance (-₹1,000)
+  - Shopping Budget utilization (10%, ₹1,000 of ₹10,000)
+  - Expense by Category report & chart
+
+### Verification
+
+- Live MongoDB pipeline verification: passed (`expensePaise: 100000`, `usedPaise: 100000`).
+- `npm run build`: passed.
+- `git diff --check`: passed.
+
+## Phase 7.4 dashboard salary clarity and navigation milestone
+
+The application now displays the user's declared monthly salary, eliminates misleading mock trend badges, adds salary editing in Settings, and restricts month navigation to valid historical/current months.
+
+### Implemented
+
+- Added declared baseline monthly salary display on the Dashboard header and Monthly Income card.
+- Replaced hardcoded static trend badges (+12%, -5%) with real contextual status (expected salary tracking and budget usage).
+- Added an editable Expected Monthly Salary field in Settings that updates `monthlyIncomePaise` via `/api/user/preferences`.
+- Disabled future month navigation ("Next Month") when viewing the current month.
+- Verified MongoDB user profile data persistence for salary, budgets, and categories.
+
+### Verification
+
+- `npm run build`: passed.
+- `git diff --check`: passed.
+
+## Phase 7.3 CSV export milestone
+
+The application now provides a real monthly CSV report download from Analytics.
+
+### Implemented
+
+- Added authenticated `GET /api/reports/export`.
+- Added strict `from`, `to`, and `format=csv` validation.
+- Added user-scoped transaction export from MongoDB.
+- CSV columns include date, type, category, paise amount, payment mode, and note.
+- Added CSV escaping and spreadsheet formula-injection protection.
+- Added an Export CSV button to Analytics.
+- Added browser blob download handling with the file name
+  `paisapilot-YYYY-MM.csv`.
+- Added route coverage for authentication, validation, headers, and user scoping
+  calls.
+
+### Verification
+
+- `npm run build`: passed.
+- `npm run test:backend`: passed — 19 tests.
+- `git diff --check`: passed.
+
+## Phase 7.2 onboarding persistence milestone
+
+Onboarding now persists as account state instead of only being a one-time
+registration redirect.
+
+### Implemented
+
+- Added `onboardingCompleted` to the user model and public authentication user.
+- Added preferences support for persisting onboarding completion.
+- Added setup guards:
+  - incomplete authenticated users are redirected to onboarding;
+  - completed users cannot accidentally reopen onboarding;
+  - unauthenticated users are redirected to login.
+- Made onboarding category creation idempotent by reusing existing category
+  names instead of creating duplicates.
+- Added skip/setup completion handling that updates the authenticated user
+  state immediately.
+- Fixed transaction list date filters to convert local date values to ISO
+  timestamps accepted by the backend.
+- Removed unsupported frontend-only `category` query keys from the API client.
+- Replaced stale “October” labels in Budgets and Analytics with the current
+  month label.
+- Added backend coverage for onboarding preference persistence.
+
+### Verification
+
+- `npm run build`: passed; existing Vite chunk-size warning remains non-blocking.
+- `npm run test:backend`: passed — 17 tests.
+- `git diff --check`: passed.
+
+## Phase 7.1 real-user shell cleanup milestone
+
+The first real account test showed that financial data was correctly isolated,
+but shared layout labels still said “Demo” and the sidebar still displayed the
+legacy demo identity.
+
+### Implemented
+
+- Sidebar and top bar now display the authenticated user's name and email.
+- Removed stale “PaisaPilot Demo”, “Demo data”, and “demo ledger” wording from
+  the authenticated application shell.
+- Sidebar collapse/expand now uses the correct directional control:
+  hamburger/menu when open and a right-pointing chevron when collapsed.
+- Sidebar sign-out now calls the real cookie-session logout flow.
+- Confirmed onboarding-created budgets are real backend budgets, not seeded demo
+  budgets.
+
+### Verification
+
+- `npm run build`: passed; existing Vite chunk-size warning remains non-blocking.
+- `git diff --check`: passed.
+
+## Phase 7 authenticated frontend integration milestone
+
+The frontend now uses the authenticated backend for the core product flow
+instead of the in-memory demo adapter.
+
+### Implemented
+
+- Replaced the malformed Axios/local-token scaffold with a native `fetch`
+  client using HttpOnly-cookie credentials and structured API errors.
+- Connected login, registration, logout, session restoration, categories,
+  transactions, reports, budgets, and preferences to backend routes.
+- Added monthly income to registration and persisted it on the user.
+- Added protected routing and a personalized onboarding page for initial
+  categories and current-month budgets.
+- Normalized integer-paise API values into the existing UI contracts.
+- Converted transaction form dates to ISO timestamps and payment labels to
+  backend enum values.
+- Removed the visible demo-mode banner from the real dashboard flow.
+- Mapped report category names and monthly income/expense fields for charts.
+
+### Verification
+
+- `npm run test:backend`: passed — 16 tests.
+- `npm run build`: passed; existing Vite chunk-size warning remains non-blocking.
+- `git diff --check`: passed.
+- The full browser registration-to-onboarding flow still needs an E2E test
+  against a running frontend and local MongoDB.
+
+The next milestone is recurring transactions/exports or security hardening,
+with end-to-end coverage added before deployment.
+
+## Phase 6 report aggregation milestone
+
+The first report APIs are implemented using user-scoped MongoDB aggregation
+pipelines. The frontend is still demo-adapter-based.
+
+### Implemented
+
+- Timezone-aware month and year boundary calculation using the user's IANA
+  timezone.
+- `GET /api/reports/summary?month=YYYY-MM` with `$match` and `$facet` totals,
+  balance, savings rate, and transaction count.
+- `GET /api/reports/by-category?from&to` with `$group`, `$sum`, `$lookup`,
+  `$project`, and sorting for expense categories.
+- `GET /api/reports/monthly-trend?year=YYYY` with timezone-aware
+  `$dateToString`, grouping, sorting, and chart-ready output.
+- Strict report query validation and authenticated route protection.
+
+### Verification
+
+- `npm run test:backend`: passed — 14 tests.
+- `npm run build`: passed; existing Vite chunk warnings remain non-blocking.
+- `git diff --check`: passed.
+- Local MongoDB smoke test passed with temporary records and cleanup:
+  summary, category grouping, monthly trend, and Asia/Kolkata boundary.
+
+The next milestone is budgets, followed by replacing frontend demo calls with
+the real authenticated API adapter.
+
+## Phase 6 budget milestone
+
+Monthly category budgets are now implemented with user ownership and
+transaction-derived usage.
+
+### Implemented
+
+- `Budget` model with unique `(userId, categoryId, month)` identity.
+- `GET /api/budgets?month=YYYY-MM`.
+- `PUT /api/budgets/:categoryId` upsert behavior.
+- User/category ownership checks.
+- Integer-paise limit validation.
+- Expense-only MongoDB aggregation for `usedPaise`.
+- Calculated `remainingPaise` and `utilizationPercent`.
+
+### Verification
+
+- `npm run test:backend`: passed — 16 tests.
+- `npm run build`: passed; existing Vite chunk warnings remain non-blocking.
+- `git diff --check`: passed.
+- Local MongoDB budget smoke test passed with temporary records and cleanup.
+
+The next milestone is the real frontend API adapter and replacing demo
+authentication/data calls with authenticated backend requests.
+
+## Phase 5 categories and transaction persistence milestone
+
+Phase 5 backend routes are implemented behind the existing JWT-cookie
+authentication boundary. The frontend still uses the demo adapter and is not
+connected to these routes.
+
+### Implemented
+
+- `Category` model with user ownership, optional system categories, archive
+  state, and a user/name uniqueness index.
+- `Transaction` model with user ownership, integer paise amounts, UTC dates,
+  category references, recurrence metadata, and `{ userId, date }` index.
+- Strict Zod validation for category CRUD, transaction CRUD, and list filters.
+- Authenticated category list/create/update/archive routes.
+- Authenticated transaction list/create/update/delete routes.
+- Category ownership checks for transaction creation and updates.
+- User-scoped transaction filters for date, type, and category plus pagination.
+- Supertest coverage for unauthenticated finance access, invalid amounts, and
+  authenticated user propagation.
+
+### Verification
+
+- `npm run test:backend`: passed — 12 tests.
+- `npm run build`: passed; existing Vite chunk warnings remain non-blocking.
+- `git diff --check`: passed.
+- Live MongoDB persistence and Atlas verification remain outstanding.
+
+The next milestone is live database integration testing followed by reports
+and budgets. Frontend pages still use demo data until the API adapter phase.
+
+## Phase 4 authentication milestone
+
+Phase 4 authentication is implemented as a focused backend slice using a
+short-lived JWT in a Secure/HttpOnly/SameSite cookie. Finance models and APIs
+remain out of scope.
+
+### Implemented
+
+- Mongoose `User` model with normalized unique email, Argon2id password hash,
+  currency, timezone, and timestamps.
+- Zod registration and login validation with strict unknown-field rejection.
+- `POST /api/auth/register`.
+- `POST /api/auth/login`.
+- `POST /api/auth/logout`.
+- `GET /api/auth/me`.
+- JWT issuer/audience checks and authenticated-user lookup middleware.
+- Public user responses exclude password hashes and tokens.
+- Authentication tests for cookie issuance, invalid input, and unauthenticated
+  access.
+
+### Security boundary
+
+The JWT is short-lived and stored only in an HttpOnly cookie. Logout clears the
+cookie but does not revoke a token already copied by an attacker before its
+expiry. Production hardening still needs token rotation/revocation, CSRF
+protection, login rate limiting, and live database/integration testing.
+
+### Phase 4 verification
+
+- `npm run test:backend`: passed — 9 tests.
+- `npm run build`: passed.
+- No live authentication request was run against MongoDB Atlas; local MongoDB
+  connectivity was previously verified for the foundation.
+
+The next milestone is transaction and category persistence with authenticated
+user ownership filters.
 
 ## Phase 3 backend foundation
 

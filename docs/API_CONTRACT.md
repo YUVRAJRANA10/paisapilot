@@ -28,7 +28,7 @@ List responses use `{ data, pagination }`, where pagination is
 |---|---|---|---|
 | POST | `/auth/register` | No | Body: `name`, `email`, `password`, `currency`, `timezone`. Returns `201 { user }` and sets cookie. |
 | POST | `/auth/login` | No | Body: `email`, `password`. Returns `200 { user }` and sets cookie. |
-| POST | `/auth/logout` | Yes | Clears/revokes cookie. Returns `204`. |
+| POST | `/auth/logout` | Yes | Clears the session cookie. JWT revocation is a follow-up hardening task. Returns `204`. |
 | GET | `/auth/me` | Yes | Returns `200 { user }` without password fields. |
 
 Passwords are never returned. Duplicate email is `409`; invalid credentials
@@ -78,6 +78,9 @@ month is `400/404`; a category belonging to another user is never accepted.
 | POST | `/categories` | Yes | Body: `name`, optional `icon`, `color`. Returns `201 { category }`. |
 | PUT | `/categories/:id` | Yes | Updates allow-listed display fields. Returns `200 { category }`. |
 | DELETE | `/categories/:id` | Yes | Archives categories referenced by transactions; returns `204`. |
+
+Category and transaction IDs are user-scoped. A category delete is an archive
+operation so historical transaction references are not destroyed.
 
 ## Preferences
 
