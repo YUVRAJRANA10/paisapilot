@@ -28,7 +28,7 @@ export function createCategoriesRouter() {
         })))
       }
 
-      res.json({ categories })
+      res.json({ categories, data: categories })
     } catch (err) {
       next(err)
     }
@@ -49,7 +49,7 @@ export function createCategoriesRouter() {
         name: { $regex: new RegExp(`^${trimmedName}$`, 'i') }
       })
       if (existing) {
-        return res.json({ category: existing })
+        return res.json({ category: existing, data: existing })
       }
 
       const count = await Category.countDocuments({ userId })
@@ -63,33 +63,45 @@ export function createCategoriesRouter() {
         budgetLimit: budgetLimit || 0,
       })
 
-      res.status(201).json({ category })
+      res.status(201).json({ category, data: category })
     } catch (err) {
       next(err)
     }
   })
 
-  router.patch('/:id', async (req, res, next) => {
+  const handleUpdate = async (req, res, next) => {
     try {
       const userId = req.user.id || req.user._id
+      const filter = { userId }
+      if (req.params.id && req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
+        filter._id = req.params.id
+      } else {
+        filter.id = req.params.id
+      }
       const category = await Category.findOneAndUpdate(
-        { _id: req.params.id, userId },
+        filter,
         { $set: req.body },
         { new: true }
       )
-      if (!category) {
-        return res.status(404).json({ error: { message: 'Category not found' } })
-      }
-      res.json({ category })
+      res.json({ category, data: category })
     } catch (err) {
       next(err)
     }
-  })
+  }
+
+  router.put('/:id', handleUpdate)
+  router.patch('/:id', handleUpdate)
 
   router.delete('/:id', async (req, res, next) => {
     try {
       const userId = req.user.id || req.user._id
-      await Category.deleteOne({ _id: req.params.id, userId })
+      const filter = { userId }
+      if (req.params.id && req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
+        filter._id = req.params.id
+      } else {
+        filter.id = req.params.id
+      }
+      await Category.findOneAndDelete(filter)
       res.json({ ok: true })
     } catch (err) {
       next(err)

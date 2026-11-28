@@ -39,6 +39,12 @@ export function TransactionForm({ isOpen, onClose, onSave, transaction = null, c
   const [errors, setErrors] = useState({})
 
   useEffect(() => {
+    if (initialCategories && initialCategories.length > 0) {
+      setCategories(initialCategories)
+    }
+  }, [initialCategories])
+
+  useEffect(() => {
     if (!isOpen) return
 
     if (initialCategories && initialCategories.length > 0) {
@@ -47,7 +53,7 @@ export function TransactionForm({ isOpen, onClose, onSave, transaction = null, c
       const getCats = (demoAdapter && demoAdapter.getCategories) || (realAdapter && realAdapter.getCategories)
       if (getCats) {
         getCats().then(res => {
-          if (res?.categories) setCategories(res.categories)
+          if (res?.categories && res.categories.length > 0) setCategories(res.categories)
         }).catch(() => {})
       }
     }
@@ -126,11 +132,16 @@ export function TransactionForm({ isOpen, onClose, onSave, transaction = null, c
     if (!form.date || Number.isNaN(new Date(form.date).getTime())) newErrors.date = 'Valid date is required'
     if (!form.paymentMode) newErrors.paymentMode = 'Payment mode is required'
 
+    const cat = categories.find(c => (c.id && c.id === currentCategoryId) || (c._id && c._id === currentCategoryId))
+    const parsedAmount = parseINRString(form.amount)
     const payload = {
       id: transaction?.id,
       type: form.type,
-      amount: parseINRString(form.amount),
+      amount: parsedAmount,
+      amountPaise: parsedAmount,
       categoryId: currentCategoryId,
+      categoryName: cat ? cat.name : 'Unknown',
+      categoryColor: cat ? (cat.color || '#9ca3af') : '#9ca3af',
       date: form.date,
       paymentMode: form.paymentMode,
       note: form.note.trim(),

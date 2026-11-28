@@ -58,15 +58,20 @@ export default function Transactions() {
   }, [query, transactions])
 
   const handleSave = async payload => {
-    if (payload.id) {
-      await demoAdapter.updateTransaction(payload.id, payload)
-    } else {
-      await demoAdapter.createTransaction(payload)
+    try {
+      if (payload.id) {
+        await demoAdapter.updateTransaction(payload.id, payload)
+      } else {
+        await demoAdapter.createTransaction(payload)
+      }
+      setShowAddModal(false)
+      setEditingTransaction(null)
+      await loadTransactions()
+      const catRes = await demoAdapter.getCategories()
+      if (catRes?.categories) setCategories(catRes.categories)
+    } catch (err) {
+      console.error('Failed to save transaction:', err)
     }
-    setShowAddModal(false)
-    setEditingTransaction(null)
-    loadTransactions()
-    demoAdapter.getCategories().then(res => setCategories(res.categories || []))
   }
 
   const handleDelete = async transaction => {
@@ -195,6 +200,7 @@ export default function Transactions() {
       <TransactionForm
         isOpen={showAddModal || !!editingTransaction}
         transaction={editingTransaction}
+        categories={categories}
         onClose={() => { setShowAddModal(false); setEditingTransaction(null) }}
         onSave={handleSave}
       />

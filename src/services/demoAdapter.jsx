@@ -331,29 +331,10 @@ export const demoAdapter = {
   // ---------------- Transactions ----------------
   async getTransactions(params = {}) {
     const query = new URLSearchParams()
-    Object.entries(params).forEach(([k, v]) => { if (v !== undefined) query.set(k, v) })
+    Object.entries(params).forEach(([k, v]) => { if (v !== undefined && v !== '') query.set(k, v) })
     const apiRes = await apiFetch(`/transactions?${query.toString()}`)
     if (apiRes?.transactions) {
-      const localTxns = getUserTransactions()
-      const unsynced = localTxns.filter(lt => lt.id && !lt.id.match(/^[0-9a-fA-F]{24}$/))
-      if (unsynced.length > 0) {
-        for (const t of unsynced) {
-          await apiFetch('/transactions', {
-            method: 'POST',
-            body: JSON.stringify({
-              type: t.type,
-              amount: t.amount,
-              categoryId: t.categoryId,
-              categoryName: t.categoryName,
-              categoryColor: t.categoryColor,
-              date: t.date,
-              paymentMode: t.paymentMode,
-              note: t.note,
-            }),
-          })
-        }
-        saveUserTransactions(apiRes.transactions)
-      }
+      saveUserTransactions(apiRes.transactions)
       return apiRes
     }
     await delay(150)
@@ -386,9 +367,16 @@ export const demoAdapter = {
   },
 
   async createTransaction(payload) {
+    const cat = getUserCategories().find(c => c.id === payload.categoryId || c._id === payload.categoryId)
+    const enriched = {
+      ...payload,
+      categoryName: payload.categoryName || cat?.name || 'Unknown',
+      categoryColor: payload.categoryColor || cat?.color || '#9ca3af',
+      amountPaise: payload.amount,
+    }
     const apiRes = await apiFetch('/transactions', {
       method: 'POST',
-      body: JSON.stringify(payload),
+      body: JSON.stringify(enriched),
     })
     if (apiRes?.transaction) {
       const txns = getUserTransactions()
@@ -397,14 +385,11 @@ export const demoAdapter = {
       return { transaction: apiRes.transaction }
     }
     await delay(150)
-    const cat = getUserCategories().find(c => c.id === payload.categoryId)
     const transaction = {
       id: 'txn-' + Date.now(),
       userId: demoUser?.id || 'user',
-      categoryName: cat ? cat.name : (payload.categoryName || 'Unknown'),
-      categoryColor: cat ? cat.color : (payload.categoryColor || '#9ca3af'),
       status: 'cleared',
-      ...payload,
+      ...enriched,
     }
     const txns = getUserTransactions()
     txns.unshift(transaction)

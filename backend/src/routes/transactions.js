@@ -32,10 +32,11 @@ export function createTransactionsRouter() {
 
       res.json({
         transactions,
+        data: transactions,
         page: pageNum,
         limit: limitNum,
         total,
-        totalPages: Math.ceil(total / limitNum),
+        totalPages: Math.ceil(total / limitNum) || 1,
       })
     } catch (err) {
       next(err)
@@ -85,19 +86,27 @@ export function createTransactionsRouter() {
       let categoryName = payload.categoryName
       let categoryColor = payload.categoryColor
       if (!categoryName && payload.categoryId) {
-        const cat = await Category.findOne({
-          $or: [{ _id: payload.categoryId }, { id: payload.categoryId }]
-        }).catch(() => null)
+        let cat = null
+        if (typeof payload.categoryId === 'string' && payload.categoryId.match(/^[0-9a-fA-F]{24}$/)) {
+          cat = await Category.findById(payload.categoryId).catch(() => null)
+        }
+        if (!cat) {
+          cat = await Category.findOne({
+            userId,
+            $or: [{ name: payload.categoryId }, { id: payload.categoryId }]
+          }).catch(() => null)
+        }
         if (cat) {
           categoryName = cat.name
           categoryColor = cat.color
         }
       }
 
+      const amountVal = payload.amount !== undefined ? payload.amount : payload.amountPaise
       const transaction = await Transaction.create({
         userId,
-        type: payload.type,
-        amount: payload.amount,
+        type: payload.type || 'expense',
+        amount: Number(amountVal) || 0,
         categoryId: payload.categoryId,
         categoryName: categoryName || 'Unknown',
         categoryColor: categoryColor || '#9ca3af',
@@ -115,20 +124,24 @@ export function createTransactionsRouter() {
     }
   })
 
-  router.patch('/:id', async (req, res, next) => {
+  const handleUpdate = async (req, res, next) => {
     try {
       const userId = req.user.id || req.user._id
       const filter = { userId }
-      if (req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
+      if (req.params.id && req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
         filter._id = req.params.id
       } else {
-        filter._id = req.params.id
+        filter.id = req.params.id
+      }
+      const updateData = { ...req.body }
+      if (updateData.amountPaise !== undefined && updateData.amount === undefined) {
+        updateData.amount = updateData.amountPaise
       }
       const transaction = await Transaction.findOneAndUpdate(
         filter,
-        { $set: req.body },
+        { $set: updateData },
         { new: true }
-      ).catch(() => null)
+      )
       if (!transaction) {
         return res.status(404).json({ error: { message: 'Transaction not found' } })
       }
@@ -136,18 +149,21 @@ export function createTransactionsRouter() {
     } catch (err) {
       next(err)
     }
-  })
+  }
+
+  router.patch('/:id', handleUpdate)
+  router.put('/:id', handleUpdate)
 
   router.delete('/:id', async (req, res, next) => {
     try {
       const userId = req.user.id || req.user._id
       const filter = { userId }
-      if (req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
+      if (req.params.id && req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
         filter._id = req.params.id
       } else {
-        filter._id = req.params.id
+        filter.id = req.params.id
       }
-      await Transaction.deleteOne(filter).catch(() => null)
+      await Transaction.findOneAndDelete(filter)
       res.json({ ok: true })
     } catch (err) {
       next(err)
